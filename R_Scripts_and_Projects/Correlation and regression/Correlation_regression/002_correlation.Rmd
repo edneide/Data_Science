@@ -1,0 +1,19 @@
+---
+title: "Correlation"
+author: "by Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: flatly
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+This script is based on the course: **Correlation and Regression in R** available on Data Camp.
+
+# Quantifying the strength of bivariate relationships
