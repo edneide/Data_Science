@@ -17,3 +17,23 @@ output:
 # The best fit line 
 
 In regression, we use the least squares criterion to determine the best fit line.
+
+```{r}
+library(ggplot2)
+library(readr)
+possum <- read_csv("possum.csv")
+```
+
+```{r}
+ggplot(data = possum, aes(y = total_l, x = tail_l)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+-   Plot without the standard error (se):
+
+```{r}
+ggplot(data = possum, aes(y = total_l, x = tail_l)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
