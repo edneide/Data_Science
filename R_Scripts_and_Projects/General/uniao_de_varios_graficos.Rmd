@@ -1,0 +1,125 @@
+---
+title: "União de Vários Gráficos"
+author: "by Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: flatly
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+# Introdução 
+
+Este script é adpadato de: <https://blog.curso-r.com/posts/2021-05-19-patchwork/>.
+
+Vamos usar o pacote `patchwork` para unir gráficos do `ggplot2`.
+
+```{r cars}
+library(patchwork)
+library(ggplot2)
+library(magrittr)
+library(tidyverse)
+#remotes::install_github("allisonhorst/palmerpenguins")
+library(palmerpenguins)
+```
+
+```{r}
+names(penguins)
+
+dados <- penguins
+```
+
+```{r}
+# Primeiro gráfico
+g1 <- dados %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point()
+g1
+```
+
+```{r}
+# segundo gráfico
+g2 <- dados %>% 
+  ggplot(aes(x = bill_depth_mm)) +
+  geom_density()
+g2
+```
+
+```{r}
+# terceiro gráfico
+g3 <- dados %>% 
+  ggplot(aes(x = bill_length_mm)) +
+  geom_density()
+g3
+```
+
+```{r}
+g1 + g2 + g3
+```
+
+-   Se quisermos os gráficos um abaixo do outro, utilizamos `/` ao invés de `+`:
+
+```{r}
+g1 / g2 / g3
+```
+
+-   Mesclando os operadores `/` e `+`
+
+```{r}
+(g1 + g2) / g3
+```
+
+```{r}
+(g1+((g1 + g2) / g3))/g3
+```
+
+# Incluindo elementos não gráficos
+
+```{r}
+(g1 + grid::textGrob("Parece haver uma \ndistribuição bimodal para \ncomprimento e profundidade do bico")) / (g2 + g3)
+```
+
+```{r}
+tabela <- dados %>% 
+  dplyr::summarise(
+    comprimento_bico = mean(bill_length_mm, na.rm = TRUE),
+    profundidade_bico = mean(bill_depth_mm, na.rm = TRUE)
+  ) %>% 
+  tidyr::pivot_longer(dplyr::everything(), names_to = "Variável", values_to = "Média") 
+
+# Exemplo com tabela
+# primeira linha
+(g1 + gridExtra::tableGrob(tabela, rows = c("", "")))/
+# segunda linha
+(g2+g3)
+```
+
+# Modificando a composição
+
+```{r}
+((
+  # gráfico
+  (# primeira coluna
+    (g2 / g3) |
+    # segunda coluna
+    g1) +
+    # alterando a largura
+    plot_layout(widths = c(1, 2)
+  )
+) +
+# 
+plot_annotation(
+  title = "Comparação entre os a profundidade e o comprimento dos bicos",
+  subtitle = "Os  graficos indicam a presença de uma distribuição bimodal, possivelmente porque existem várias espécies na base.",
+  caption = "Fonte: github.com/cienciadedatos/dados"
+)) &
+# trocando os temas para branco. o operador `&` garante que o tema será aplicado
+# a todos os sub-plots
+theme_bw() 
+```
