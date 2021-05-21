@@ -215,7 +215,7 @@ sets %>%
 	inner_join(inventory_parts, by = c("id" = "inventory_id"))
 ```
 
-### What's the common color? 
+### What's the common color?
 
 Now let's join an additional table, `colors`, which will tell us the color of each part in each set, so that we can answer the question, "what is the most common color of a LEGO piece?"
 
@@ -391,4 +391,19 @@ sets %>%
 
 # **The right-join verb**
 
-\
+```{r}
+batmobile %>% 
+  right_join(batwing, by = c("part_num", "color_id"),
+             suffix = c("_batmobile", "_batwing"))
+```
+
+-   Left-joins and right-joins are mirror images of each other.
+
+-   Let's calculate the quantity each theme appear:
+
+```{r}
+sets %>% 
+  count(theme_id, sort = TRUE)
+```
+
+-   The most common theme is the id 501\

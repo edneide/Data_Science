@@ -242,7 +242,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Joining Data With Dplyr - Data Camp</h1>
 <h4 class="author">Edneide Ramalho</h4>
-<h4 class="date">28 Março, 2021</h4>
+<h4 class="date">21 Maio, 2021</h4>
 
 </div>
 
@@ -783,9 +783,9 @@ star_destroyer &lt;- inventory_parts_joined %&gt;%
 <pre class="r"><code># Aggregate Millennium Falcon for the total quantity in each part
 millennium_falcon_colors &lt;- millennium_falcon %&gt;%
   group_by(color_id) %&gt;%
-  summarize(total_quantity = sum(quantity))</code></pre>
-<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
-<pre class="r"><code>millennium_falcon_colors</code></pre>
+  summarize(total_quantity = sum(quantity))
+
+millennium_falcon_colors</code></pre>
 <pre><code>## # A tibble: 21 x 2
 ##    color_id total_quantity
 ##       &lt;dbl&gt;          &lt;dbl&gt;
@@ -806,9 +806,8 @@ millennium_falcon_colors &lt;- millennium_falcon %&gt;%
 <pre class="r"><code># Aggregate Star Destroyer for the total quantity in each part
 star_destroyer_colors &lt;- star_destroyer %&gt;%
   group_by(color_id) %&gt;%
-  summarize(total_quantity = sum(quantity))</code></pre>
-<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
-<pre class="r"><code>star_destroyer_colors</code></pre>
+  summarize(total_quantity = sum(quantity))
+star_destroyer_colors</code></pre>
 <pre><code>## # A tibble: 0 x 2
 ## # … with 2 variables: color_id &lt;dbl&gt;, total_quantity &lt;dbl&gt;</code></pre>
 <ul>
