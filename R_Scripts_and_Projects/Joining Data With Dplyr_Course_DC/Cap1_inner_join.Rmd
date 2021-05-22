@@ -406,4 +406,157 @@ sets %>%
   count(theme_id, sort = TRUE)
 ```
 
--   The most common theme is the id 501\
+-   The most common theme is the id 501, but only knowing the id is not enough. We can add the theme name using `inner_join`
+
+```{r}
+sets %>% 
+  count(theme_id, sort = TRUE) %>% 
+  inner_join(themes, by = c("theme_id" = "id"))
+```
+
+-   The most common theme is called Gear.
+
+-   Using `right_join`
+
+```{r}
+sets %>% 
+  count(theme_id, sort = TRUE) %>% 
+  right_join(themes, by = c("theme_id" = "id"))
+```
+
+-   The NA in the n column should be zeros. There is a dplyr verb to help on this issue, `replace_na`.
+
+# Replace NAs
+
+```{r}
+library(tidyr)
+sets %>% 
+  count(theme_id, sort = TRUE) %>% 
+  right_join(themes, by = c("theme_id" = "id")) %>% 
+  replace_na(list(n = 0))
+```
+
+# Exercises
+
+## Counting part colors
+
+Sometimes you'll want to do some processing *before* you do a join, *and* prioritize keeping the second (right) table's rows instead. In this case, a right join is for you.
+
+In the example below, we'll count the `part_cat_id` from `parts`, before using a `right_join` to join with `part_categories`. The reason we do this is because we don't only want to know the count of `part_cat_id` in `parts`, but we also want to know if there are any `part_cat_id`s *not* present in `parts`.
+
+Use the `count` verb to count each `part_cat_id` in the `parts` table.
+
+-   Use a `right_join` to join `part_categories`. You'll need to use the `part_cat_id` from the count and the `id` column from `part_categories`.
+
+```{r}
+parts %>%
+	# Count the part_cat_id
+	count(part_cat_id) %>%
+	# Right join part_categories
+	right_join(part_categories, by = c("part_cat_id" = "id"))
+```
+
+-   `filter` for where the column `n` is NA.
+
+```{r}
+parts %>%
+	# Count the part_cat_id
+	count(part_cat_id) %>%
+	# Right join part_categories
+	right_join(part_categories, by = c("part_cat_id" = "id")) %>% 
+  filter(is.na(n))
+```
+
+## Cleaning up your count
+
+If you have NA values, you need to add a line to the code above: `replace_na(list(n = 0))`
+
+# Jonining tables to themselves
+
+```{r}
+head(themes)
+```
+
+Note that some names have the same `parent_id`, for example, Arctic Technic, Competition, Expert Builder and Model have 1 as `parent_id`.
+
+```{r}
+themes %>% 
+  inner_join(themes, by = c("parent_id" = "id"))
+```
+
+## Adding a suffix
+
+```{r}
+themes %>% 
+  inner_join(themes, by = c("parent_id" = "id"),
+             suffix = c("_child", "_parent"))
+```
+
+## Lord of the Rings themes: parent
+
+```{r message=FALSE, warning=FALSE}
+themes %>% 
+  inner_join(themes, by = c("parent_id" = "id"),
+             suffix = c("_child", "_parent")) %>% 
+  filter(name_child == "The Lord of the Rings")
+```
+
+# Exercises
+
+## Joining themes to their children
+
+Tables can be joined to themselves!
+
+In the `themes` table, which is available for you to inspect in the console, you'll notice there is both an `id` column and a `parent_id` column. Keeping that in mind, you can join the `themes` table to itself to determine the parent-child relationships that exist for different themes.
+
+In the videos, you saw themes joined to their own parents. In this exercise, you'll try a similar approach of joining themes to their own *children*, which is similar but reversed. Let's try this out to discover what children the theme `"Harry Potter"` has.
+
+-   Inner join `themes` to their own children, resulting in the suffixes `"_parent"` and `"_child"`, respectively.
+
+-   Filter this table to find the children of the "Harry Potter" theme.
+
+```{r}
+themes %>% 
+	# Inner join the themes table
+	inner_join(themes, by = c("id" = "parent_id"), 
+	           suffix = c("_parent", "_child")) %>%
+	# Filter for the "Harry Potter" parent name 
+	dplyr::filter(name_parent == "Harry Potter")
+```
+
+## Joining themes to their grandchildren
+
+We can go a step further than looking at themes and their children. Some themes actually have *grandchildren*: their children's children.
+
+Here, we can inner join `themes` to a filtered version of itself *again* to establish a connection between our last join's children and *their* children.
+
+-   Use another inner join to combine `themes` again with itself.
+
+    -   Be sure to use the suffixes `"_parent"` and `"_grandchild"` so the columns in the resulting table are clear.
+
+    -   Update the `by` argument to specify the correct columns to join on. If you're unsure of what columns to join on, it might help to look at the result of the first join to get a feel for it.
+
+```{r}
+# Join themes to itself again to find the grandchild relationships
+themes %>% 
+  inner_join(themes, by = c("id" = "parent_id"), suffix = c("_parent", "_child")) %>%
+  inner_join(themes, by = c("id_child" = "parent_id"), suffix = c("_parent", "_grandchild"))
+```
+
+## Left-joining a table to itself
+
+So far, you've been inner joining a table to itself in order to find the children of themes like "Harry Potter" or "The Lord of the Rings".
+
+But some themes might not have any children at all, which means they won't be included in the inner join. As you've learned in this chapter, you can identify those with a left_join and a filter().
+
+-   Left join the themes table to its own children, with the suffixes `_parent` and `_child` respectively.
+
+-   Filter the result of the join to find themes that have no children.
+
+```{r}
+themes %>% 
+  # Left join the themes table to its own children
+  left_join(themes, by = c("id" = "parent_id"), suffix = c("_parent", "_child")) %>%
+  # Filter for themes that have no child themes
+  filter(is.na(name_child))
+```
