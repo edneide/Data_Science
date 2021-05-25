@@ -1,0 +1,44 @@
+---
+title: "Iteração"
+author: "by Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: flatly
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+Capítulo 21 do livro **R for Data Science (Wickham),** disponível em <https://r4ds.had.co.nz/iteration.html>.
+
+# Pré-requisitos
+
+```{r}
+library(tidyverse)
+```
+
+# For loops
+
+```{r}
+df <- tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+```
+
+Usando um loop **for** para calcular a mediana de cada uma das variáveis:
+
+```{r}
+output <- vector("double", ncol(df)) # output
+for (i in seq_along(df)){ # sequence
+  output[[i]] <- median(df[[i]]) # body
+}
+output
+```
