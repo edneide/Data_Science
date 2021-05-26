@@ -13,3 +13,53 @@ output:
         collapsed: yes
         smooth_scroll: no
 ---
+
+# Interpretation of the coefficients
+
+A fitted model for the poverty rate of U.S. counties as a function of high school graduation rate is:
+
+$$\hat{poverty} =  64.594 - 0.591 \cdot hs\_grad$$
+The interpretation of the coefficients is the following:
+
+Among U.S. counties, each additional percentage point increase in the high school graduation rate is associated with about a 0.591 percentage point decrease in the poverty rate.
+
+# Fitting simple linear models
+
+While the `geom_smooth(method = "lm")` function is useful for drawing linear models on a scatterplot, it doesn't actually return the characteristics of the model. As suggested by that syntax, however, the function that creates linear models is `lm()`. This function generally takes two arguments:
+
+- A `formula` that specifies the model
+- A `data` argument for the data frame that contains the data you want to use to fit the model
+
+The `lm()` function return a model object having class `"lm"`. This object contains lots of information about your regression model, including the data used to fit the model, the specification of the model, the fitted values and residuals, etc.
+
+- Using the bdims dataset, create a linear model for the weight of people as a function of their height.
+
+- Using the mlbBat10 dataset, create a linear model for SLG as a function of OBP.
+- Using the mammals dataset, create a linear model for the body weight of mammals as a function of their brain weight, after taking the natural log of both variables.
+
+```{r}
+library(openintro)
+library(ggplot2)
+library(tidyverse)
+```
+
+```{r}
+# Linear model for weight as a function of height
+glimpse(bdims)
+lm(wgt ~ hgt, data = bdims)
+```
+
+```{r}
+# Linear model for SLG as a function of OBP
+glimpse(mlbbat10)
+lm(slg ~ obp, data = mlbbat10)
+```
+
+```{r}
+# Log-linear model for body weight as a function of brain weight
+glimpse(mammals)
+lm(log(body_wt) ~ log(brain_wt), data = mammals)
+```
+
+
+# Your linear model object

@@ -114,7 +114,8 @@ cor(anscombe$x4, anscombe$y4)
 - Reading the dataset:
 
 ```{r}
-Anscombe <- read.csv("~/Documents/GitHub/Data_Science/R_Scripts_and_Projects/Correlation_regression/Anscombe.txt", sep="")
+library(tidyverse)
+Anscombe <- read.csv("Anscombe.txt", sep="")
 glimpse(Anscombe)
 ```
 - It may be helpful to remind yourself of the graphic relationship by viewing the four scatterplots:

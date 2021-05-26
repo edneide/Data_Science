@@ -242,7 +242,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Correlation</h1>
 <h4 class="author">by Edneide Ramalho</h4>
-<h4 class="date">13 Maio, 2021</h4>
+<h4 class="date">26 Maio, 2021</h4>
 
 </div>
 
@@ -333,7 +333,8 @@ library(tidyverse)</code></pre>
 <li><p>The Anscombe dataset contains the x and y coordinates for these four datasets, along with a grouping variable, set, that distinguishes the quartet.</p></li>
 <li><p>Reading the dataset:</p></li>
 </ul>
-<pre class="r"><code>Anscombe &lt;- read.csv(&quot;~/Documents/GitHub/Data_Science/R_Scripts_and_Projects/Correlation_regression/Anscombe.txt&quot;, sep=&quot;&quot;)
+<pre class="r"><code>library(tidyverse)
+Anscombe &lt;- read.csv(&quot;Anscombe.txt&quot;, sep=&quot;&quot;)
 glimpse(Anscombe)</code></pre>
 <pre><code>## Rows: 44
 ## Columns: 4
