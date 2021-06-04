@@ -1,0 +1,170 @@
+---
+title: "Chapter 3 - Full, Semi and Anti Joins"
+author: "by Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: readable
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+# Full join
+
+It keeps all of both tables.
+
+-   Importing the data frames:
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readr)
+inventories <- read_csv("dados/inventories.csv")
+inventory_parts <- read_csv("dados/inventory_parts.csv")
+
+inventory_parts_joined <- inventories %>% 
+  inner_join(inventory_parts, by = c("id" = "inventory_id")) %>% 
+  select(-id, -version) %>% 
+  arrange(desc(quantity))
+
+batmobile <- inventory_parts_joined %>% 
+  filter(set_num == "7784-1") %>% 
+  select(-set_num)
+
+batwing <- inventory_parts_joined %>% 
+  filter(set_num == "70916-1") %>% 
+  select(-set_num)
+```
+
+```{r message=FALSE, warning=FALSE}
+batmobile %>% 
+  full_join(batwing, by = c("part_num", "color_id"), suffix = c("_batmobile", "_batwing"))
+```
+
+## Replace NA: multiple variables
+
+```{r message=FALSE, warning=FALSE}
+batmobile %>% 
+  full_join(batwing, by = c("part_num", "color_id"), suffix = c("_batmobile", "_batwing")) %>% 
+  replace_na(list(quantity_batmobile = 0,
+                  quantity_batwing = 0))
+```
+
+## Exercises
+
+### Differences between Batman and Star Wars
+
+In the video, you compared two sets. Now, you'll compare two themes, each of which is made up of many sets.
+
+First, you'll need to join in the `themes`. Recall that doing so requires going through the `sets` first. You'll use the `inventory_parts_joined` table from the video, which is already available to you in the console.
+
+    inventory_parts_joined <- inventories %>%
+      inner_join(inventory_parts, by = c("id" = "inventory_id")) %>%
+      arrange(desc(quantity)) %>%
+      select(-id, -version)
+
+-   In order to join in the themes, you'll first need to combine the `inventory_parts_joined` and `sets` tables. Keep only the observations that have a match in both tables.
+
+-   Then, combine the first join with the `themes` table, using the suffix argument to clarify which table each `name` came from (`"_set"` or `"_theme"`). Keep only the observations that have a match in both tables.
+
+*If your exercise is timing out, you are likely joining the wrong tables, causing the join result to be too big! Check your code carefully!*
+
+```{r}
+library(readr)
+sets <- read_csv("dados/sets.csv")
+themes <- read_csv("dados/themes.csv")
+```
+
+```{r}
+# Start with inventory_parts_joined table
+inventory_parts_joined %>%
+  # Combine with the sets table 
+  inner_join(sets, by = "set_num") %>% 
+  # Combine with the themes table 
+  inner_join(themes, by = c("theme_id" = "id"),
+            suffix = c("_set", "_theme")) 
+```
+
+### **Aggregating each theme**
+
+Previously, you combined tables to compare themes. Before doing this comparison, you'll want to aggregate the data to learn more about the pieces that are a part of each theme, as well as the colors of those pieces.
+
+The table you created previously has been preloaded for you as `inventory_sets_themes`. It was filtered for each theme, and the objects have been saved as `batman` and `star_wars`.
+
+```{r}
+inventory_sets_themes <- inventory_parts_joined %>%
+  inner_join(sets, by = "set_num") %>%
+  inner_join(themes, by = c("theme_id" = "id"), suffix = c("_set", "_theme"))
+
+batman <- inventory_sets_themes %>%
+  filter(name_theme == "Batman")
+
+star_wars <- inventory_sets_themes %>%
+  filter(name_theme == "Star Wars")
+```
+
+-   Count the part number and color id for the parts in Batman and Star Wars, weighted by quantity.
+
+```{r}
+batman %>% 
+  count(part_num,color_id, wt = quantity)
+```
+
+```{r}
+star_wars %>% 
+  count(part_num, color_id, wt = quantity)
+```
+
+### **Full-joining Batman and Star Wars LEGO parts**
+
+Now that you've got separate tables for the pieces in the `batman` and `star_wars` themes, you'll want to be able to combine them to see any similarities or differences between the two themes. The aggregating from the last exercise has been saved as `batman_parts` and `star_wars_parts`, and is preloaded for you.
+
+```{r}
+batman_parts <- batman %>%
+  count(part_num, color_id, wt = quantity)
+
+star_wars_parts <- star_wars %>%
+  count(part_num, color_id, wt = quantity)
+```
+
+-   Combine the `star_wars_parts` table with the `batman_parts` table; use the suffix argument to include the `"_batman"` and `"_star_wars"` suffixes.
+
+-   Replace all the NA values in the `n_batman` and `n_star_wars` columns with 0s.
+
+```{r}
+batman_parts %>%
+  # Combine the star_wars_parts table 
+  full_join(star_wars_parts, by = c("part_num", "color_id"),
+            suffix = c("_batman", "_star_wars")) %>% 
+  # Replace NAs with 0s in the n_batman and n_star_wars columns 
+  replace_na(list(n_batman = 0,
+                  n_star_wars = 0))
+
+```
+
+### **Comparing Batman and Star Wars LEGO parts**
+
+The table you created in the last exercise includes the part number of each piece, the color id, and the number of each piece in the Star Wars and Batman themes. However, we have more information about each of these parts that we can gain by combining this table with some of the information we have in other tables. Before we compare the themes, let's ensure that we have enough information to make our findings more interpretable. The table from the last exercise has been saved as `parts_joined` and is preloaded for you.
+
+```{r}
+parts_joined <- batman_parts %>%
+  full_join(star_wars_parts, by = c("part_num", "color_id"), suffix = c("_batman", "_star_wars")) %>%
+  replace_na(list(n_batman = 0, n_star_wars = 0))
+
+```
+
+-   Sort the number of star wars pieces in the `parts_joined` table in descending order.
+
+-   Join the `colors` table to the `parts_joined` table.
+
+-   Combine the `parts` table to the previous join; add `"_color"` and `"_part"` suffixes to specify whether or not the information came from the `colors` table or the `parts` table.
+
+```{r}
+
+```
+
+# The semi- and anti-join verbs
