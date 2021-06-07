@@ -164,7 +164,102 @@ parts_joined <- batman_parts %>%
 -   Combine the `parts` table to the previous join; add `"_color"` and `"_part"` suffixes to specify whether or not the information came from the `colors` table or the `parts` table.
 
 ```{r}
+# Importing colors table
+library(readr)
+colors <- read_csv("dados/colors.csv")
+glimpse(colors)
+```
 
+```{r}
+# Importing parts table
+library(readr)
+parts <- read_csv("dados/parts.csv")
+glimpse(parts)
+```
+
+```{r}
+parts_joined %>% 
+  # Join the number of star wars pieces in descending order
+  dplyr::arrange(desc(n_star_wars)) %>% 
+  # Join the colors table to the parts_joined table
+  inner_join(colors, by = c("color_id" = "id")) %>% 
+  # Join the parts table to the previous join
+  inner_join(parts, by = "part_num", suffix = c("_color", "_part"))
 ```
 
 # The semi- and anti-join verbs
+
+## Filtering joins
+
+-   Keeps or removes observations from the first table
+-   Doesn't add new variables
+-   `semi_join()` What observations in X are **also** in Y?
+-   `anti_join()` What observations in X are not in Y?
+
+## The semi join
+
+```{r}
+glimpse(batmobile)
+```
+
+```{r}
+glimpse(batwing)
+```
+
+```{r}
+batmobile %>% 
+  semi_join(batwing, by = c("color_id", "part_num"))
+```
+
+When we do a semi_join we reduce the data frame. Only color_ids and part_num in batmobile that are also in Batwing will be returned.
+
+## The anti join
+
+It is the opposite of semi join. We are asking what observations in batmobile are not in batwing?
+
+```{r}
+batmobile %>% 
+  anti_join(batwing, by = c("color_id", "part_num"))
+```
+
+## The joining verbs
+
+-   `inner_join`
+
+-   `left_join`
+
+-   `right_join`
+
+-   `full_join` -\> Keep all observations from both tables.
+
+-   `semi_join` -\> Filter the first table for observations that match the second.
+
+-   `anti_join` -\> Filter the first table for observations that don't match the second.
+
+## Exercises
+
+### **Something within one set but not another**
+
+In the videos, you learned how to filter using the semi- and anti-join verbs to answer questions you have about your data. Let's focus on the `batwing` dataset, and use our skills to determine which parts are in both the `batwing` and `batmobile` sets, and which sets are in one, but not the other. While answering these questions, we'll also be determining whether or not the parts we're looking at in both sets also have the same color in common.
+
+-   Filter the batwing set for parts that are **also** in the batmobile, whether or not they have the same color.
+
+```{r}
+batwing %>% 
+  semi_join(batmobile, by = "part_num")
+```
+
+-   Filter the batwing set for parts that **aren't** also in the batmobile, whether or not they have the same color.
+
+    ```{r}
+    batwing %>% 
+      anti_join(batmobile, by = "part_num")
+    ```
+
+### **What colors are included in at least one set?**
+
+Besides comparing two sets directly, you could also use a filtering join like `semi_join` to find out which colors ever appear in any inventory part. Some of the colors could be optional, meaning they aren't included in any sets.
+
+The `inventory_parts` and `colors` tables have been preloaded for you.
+
+-   Use the `inventory_parts` table to find the colors that are included in at least one set.
