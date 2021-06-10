@@ -256,10 +256,140 @@ batwing %>%
       anti_join(batmobile, by = "part_num")
     ```
 
-### **What colors are included in at least one set?**
+### What colors are included in at least one set?
 
 Besides comparing two sets directly, you could also use a filtering join like `semi_join` to find out which colors ever appear in any inventory part. Some of the colors could be optional, meaning they aren't included in any sets.
 
 The `inventory_parts` and `colors` tables have been preloaded for you.
 
 -   Use the `inventory_parts` table to find the colors that are included in at least one set.
+
+```{r}
+# Use inventory_parts to find colors included in at least one set
+colors %>% 
+    semi_join(inventory_parts, by = c("id" = "color_id"))
+```
+
+### Which set is missing version 1?
+
+Each set included in the LEGO data has an associated version number. We want to understand the version we are looking at to learn more about the parts that are included. Before doing that, we should confirm that there aren't any sets that are missing a particular version.
+
+Let's start by looking at the first version of each set to see if there are any sets that don't include a first version.
+
+-   Use `filter()` to extract `version` `1` from the `inventories` table; save the filter to `version_1_inventories`.
+
+-   Use `anti_join` to combine `version_1_inventories` with `sets` to determine which set is missing a version 1.
+
+```{r}
+# Use filter() to extract version 1 
+version_1_inventories <- inventories %>%
+    filter(version == 1)
+
+
+# Use anti_join() to find which set is missing a version 1
+sets %>% 
+    anti_join(version_1_inventories, by = "set_num")
+```
+
+# Visualizing set differences
+
+## Aggregating sets into colors
+
+```{r}
+batmobile_colors <- batmobile %>% 
+  group_by(color_id) %>% 
+  summarize(total = sum(quantity))
+
+batmobile_colors
+```
+
+```{r}
+batwing_colors <- batwing %>% 
+  group_by(color_id) %>% 
+  summarize(total = sum(quantity))
+
+batwing_colors
+```
+
+## Comparing color schemes of sets
+
+```{r}
+colors_df <- batmobile_colors %>% 
+  full_join(batwing_colors, by = "color_id", 
+            suffix = c("_batmobile", "_batwing")) %>% 
+  replace_na(list(total_batmobile = 0, 
+                  total_batwing = 0))
+colors_df
+```
+
+## Adding the colors names
+
+```{r}
+colors_df <- colors_df %>% 
+  inner_join(colors, by = c("color_id" = "id"))
+colors_df
+```
+
+## Adding percentages
+
+```{r}
+colors_df <- colors_df %>% 
+  mutate(total_batmobile = total_batmobile/sum(total_batmobile),
+         total_batwing = total_batwing/sum(total_batwing))
+colors_df
+```
+
+## The difference between fractions
+
+```{r}
+colors_joined <- colors_df %>% 
+  mutate(difference = total_batmobile - total_batwing)
+colors_joined
+```
+
+## Visualizing the data
+
+```{r}
+library(ggplot2)
+library(forcats)
+
+color_palette <- setNames(paste0("#", colors_joined$rgb), colors_joined$name)
+
+colors_joined %>% 
+  mutate(name = fct_reorder(name, difference)) %>% 
+  ggplot(aes(name, difference, fill = name)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = color_palette, guide = FALSE)
+```
+
+Colors with positive difference are more common in the batmobile set, while colors with negative difference are more common in the batwing set.
+
+## Exercises
+
+### **Aggregating sets to look at their differences**
+
+To compare two individual sets, and the kinds of LEGO pieces that comprise them, we'll need to aggregate the data into separate themes. Additionally, as we saw in the video, we'll want to add a column so that we can understand the percentages of specific pieces that are part of each set, rather than looking at the numbers of pieces alone.
+
+The `inventory_parts_themes` table has been preloaded for you.
+
+```{r}
+inventory_parts_themes <- inventories %>%
+  inner_join(inventory_parts, by = c("id" = "inventory_id")) %>%
+  arrange(desc(quantity)) %>%
+  select(-id, -version) %>%
+  inner_join(sets, by = "set_num") %>%
+  inner_join(themes, by = c("theme_id" = "id"), suffix = c("_set", "_theme"))
+```
+
+-   Add a filter for the `"Batman"` set to create the `batman_colors` object.
+
+-   Add a percent column to `batman_colors` that displays the total divided by the sum of the total.
+
+-   Repeat the steps to filter and aggregate the `"Star Wars"` set data to create the `star_wars_colors` object.
+
+    -   Again, add a percent column to display the percent of the total.
+
+```{r}
+
+```

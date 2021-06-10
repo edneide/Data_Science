@@ -242,7 +242,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Chapter 3 - Full, Semi and Anti Joins</h1>
 <h4 class="author">by Edneide Ramalho</h4>
-<h4 class="date">05 Junho, 2021</h4>
+<h4 class="date">09 Junho, 2021</h4>
 
 </div>
 
@@ -591,6 +591,100 @@ parts &lt;- read_csv(&quot;dados/parts.csv&quot;)</code></pre>
 <li><p><code>semi_join</code> -&gt; Filter the first table for observations that match the second.</p></li>
 <li><p><code>anti_join</code> -&gt; Filter the first table for observations that don’t match the second.</p></li>
 </ul>
+</div>
+<div id="exercises-1" class="section level2" number="2.5">
+<h2 number="2.5"><span class="header-section-number">2.5</span> Exercises</h2>
+<div id="something-within-one-set-but-not-another" class="section level3" number="2.5.1">
+<h3 number="2.5.1"><span class="header-section-number">2.5.1</span> <strong>Something within one set but not another</strong></h3>
+<p>In the videos, you learned how to filter using the semi- and anti-join verbs to answer questions you have about your data. Let’s focus on the <code>batwing</code> dataset, and use our skills to determine which parts are in both the <code>batwing</code> and <code>batmobile</code> sets, and which sets are in one, but not the other. While answering these questions, we’ll also be determining whether or not the parts we’re looking at in both sets also have the same color in common.</p>
+<ul>
+<li>Filter the batwing set for parts that are <strong>also</strong> in the batmobile, whether or not they have the same color.</li>
+</ul>
+<pre class="r"><code>batwing %&gt;% 
+  semi_join(batmobile, by = &quot;part_num&quot;)</code></pre>
+<pre><code>## # A tibble: 126 x 4
+##    part_num color_id quantity is_spare
+##    &lt;chr&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;   
+##  1 3023            0       22 FALSE   
+##  2 3024            0       22 FALSE   
+##  3 3623            0       20 FALSE   
+##  4 2780            0       17 FALSE   
+##  5 3666            0       16 FALSE   
+##  6 3710            0       14 FALSE   
+##  7 6141            4       12 FALSE   
+##  8 2412b          71       10 FALSE   
+##  9 6141           72       10 FALSE   
+## 10 6558            1        9 FALSE   
+## # … with 116 more rows</code></pre>
+<ul>
+<li><p>Filter the batwing set for parts that <strong>aren’t</strong> also in the batmobile, whether or not they have the same color.</p>
+<pre class="r"><code>batwing %&gt;% 
+  anti_join(batmobile, by = &quot;part_num&quot;)</code></pre>
+<pre><code>## # A tibble: 183 x 4
+##    part_num color_id quantity is_spare
+##    &lt;chr&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;   
+##  1 11477           0       18 FALSE   
+##  2 99207          71       18 FALSE   
+##  3 22385           0       14 FALSE   
+##  4 99563           0       13 FALSE   
+##  5 10247          72       12 FALSE   
+##  6 2877           72       12 FALSE   
+##  7 61409          72       12 FALSE   
+##  8 11153           0       10 FALSE   
+##  9 98138          46       10 FALSE   
+## 10 2419           72        9 FALSE   
+## # … with 173 more rows</code></pre></li>
+</ul>
+</div>
+<div id="what-colors-are-included-in-at-least-one-set" class="section level3" number="2.5.2">
+<h3 number="2.5.2"><span class="header-section-number">2.5.2</span> What colors are included in at least one set?</h3>
+<p>Besides comparing two sets directly, you could also use a filtering join like <code>semi_join</code> to find out which colors ever appear in any inventory part. Some of the colors could be optional, meaning they aren’t included in any sets.</p>
+<p>The <code>inventory_parts</code> and <code>colors</code> tables have been preloaded for you.</p>
+<ul>
+<li>Use the <code>inventory_parts</code> table to find the colors that are included in at least one set.</li>
+</ul>
+<pre class="r"><code># Use inventory_parts to find colors included in at least one set
+colors %&gt;% 
+    semi_join(inventory_parts, by = c(&quot;id&quot; = &quot;color_id&quot;))</code></pre>
+<pre><code>## # A tibble: 131 x 4
+##       id name           rgb    is_trans
+##    &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;  &lt;lgl&gt;   
+##  1    -1 Unknown        0033B2 FALSE   
+##  2     0 Black          05131D FALSE   
+##  3     1 Blue           0055BF FALSE   
+##  4     2 Green          237841 FALSE   
+##  5     3 Dark Turquoise 008F9B FALSE   
+##  6     4 Red            C91A09 FALSE   
+##  7     5 Dark Pink      C870A0 FALSE   
+##  8     6 Brown          583927 FALSE   
+##  9     7 Light Gray     9BA19D FALSE   
+## 10     8 Dark Gray      6D6E5C FALSE   
+## # … with 121 more rows</code></pre>
+</div>
+<div id="which-set-is-missing-version-1" class="section level3" number="2.5.3">
+<h3 number="2.5.3"><span class="header-section-number">2.5.3</span> Which set is missing version 1?</h3>
+<p>Each set included in the LEGO data has an associated version number. We want to understand the version we are looking at to learn more about the parts that are included. Before doing that, we should confirm that there aren’t any sets that are missing a particular version.</p>
+<p>Let’s start by looking at the first version of each set to see if there are any sets that don’t include a first version.</p>
+<ul>
+<li><p>Use <code>filter()</code> to extract <code>version</code> <code>1</code> from the <code>inventories</code> table; save the filter to <code>version_1_inventories</code>.</p></li>
+<li><p>Use <code>anti_join</code> to combine <code>version_1_inventories</code> with <code>sets</code> to determine which set is missing a version 1.</p></li>
+</ul>
+<pre class="r"><code># Use filter() to extract version 1 
+version_1_inventories &lt;- inventories %&gt;%
+    filter(version == 1)
+
+
+# Use anti_join() to find which set is missing a version 1
+sets %&gt;% 
+    anti_join(version_1_inventories, by = &quot;set_num&quot;)</code></pre>
+<pre><code>## # A tibble: 4 x 5
+##   set_num name                                           year theme_id num_parts
+##   &lt;chr&gt;   &lt;chr&gt;                                         &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1 70904   Clayface Splat Attack                          2017      484         0
+## 2 70906   LEGO® Batman Movie - The Joker™ Notorious Lo…  2017      484         0
+## 3 75160   U-wing                                         2017      158       107
+## 4 76081-1 The Milano vs. The Abilisk                     2017      483       456</code></pre>
+</div>
 </div>
 </div>
 
