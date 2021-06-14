@@ -1,0 +1,143 @@
+---
+title: "Homogeneidade da Variância"
+subtitle: ""
+author: "<img src = 'https://raw.githubusercontent.com/stat-techbr/introducao_a_estatistica_com_R/main/logo-stat-tech-color-fundo-escuro-horiz.png' width = '50%'>"
+institute: "Edneide Ramalho"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+# Introdução
+
+-   Descreveremos os métodos para checar a **homogeneidade de variância** em dois ou mais grupos.
+
+-   Alguns testes estatísticos com teste t para amostras independentes e ANOVA, assumem que as variâncias sejam iguais entre os grupos.
+
+- Testes que podemos ser utilizados para acessar a homogeneidade de variâncias:
+
+--
+  + **Teste F:** Compara as variâncias de dois grupos. Os dados devem ser **normalmente** distribuídos.
+
+--
+  + **Teste de Bartlett**: Compara as variâncias de dois grupos. Os dados devem ser **normalmente** distribuídos.
+  
+--
+  + **Teste de Levene**: Uma alternativa robusta ao teste de Bartlett que é menos sensível aos desvios da normalidade.
+
+--
+  + **Teste de Fligner-Killeen**: teste **não-paramétrico** que é muito robusto contra os desvios da normalidade.
+
+---
+# Pré-requisito
+
+- Precisaremos carregar o pacote `tidyverse` para auxiliar na manipulação dos dados.
+
+```{r, message=FALSE}
+library(tidyverse)
+```
+
+--
+- Carregando a base de dados `ToothGrowth` e olhando as primeiras linhas:
+
+```{r}
+head(ToothGrowth)
+```
+
+---
+# Pré-requisito
+- Olhando algumas características das variáveis usando `glimpse`:
+
+```{r}
+glimpse(ToothGrowth)
+```
+
+---
+# Preparação dos dados
+
+- Temos que transformar a variável `dose` em um fator, originalmente ela está como variável `dbl` (double, numérica)
+
+```{r}
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+```
+
+--
+
+- Checando:
+```{r, eval=FALSE}
+class(ToothGrowth$dose)
+```
+
+--
+```{r, echo=FALSE}
+class(ToothGrowth$dose)
+```
+
+---
+# Comparando duas variâncias: Teste F
+
+- **Lembre-se**: Você precisa checar se os dados são normalmente distribuídos. 
+
+- Quando queremos realizar o teste t para duas amostras, por exemplo, necessitamos checar a igualdade de variância nas dua amostras. 
+
+## Hipóteses estatísticas
+  + Hipótese nula $(H_0)$: as variâncias dos dois grupos são **iguais**.
+  + Hipótese alternativa $(H_1)$: As variâncias são **diferentes**. 
+
+- Computamos o teste F usando a função `var.test()`. O teste considera a razão entre as variâncias de dois grupos, A e B (`Var(A)/Var(B)`). Quanto mais distante de 1 esta razão for, mais forte é a evidência de que as variâncias são diferentes.
+
+---
+# Comparando duas variâncias: Teste F
+
+- Vamos testar a igualdade de variâncias entre os dois grupos (OJ e VC) da variável `supp` para a variável `len`:
+
+
+```{r, eval=FALSE}
+table(ToothGrowth$supp)
+```
+
+--
+```{r, echo=FALSE}
+table(ToothGrowth$supp)
+```
+
+
+---
+# Comparando duas variâncias: Teste F
+- Aplicando o teste:
+```{r,eval=FALSE}
+resultado <- var.test(len ~ supp, data = ToothGrowth)
+resultado
+```
+
+--
+```{r,echo=FALSE}
+resultado <- var.test(len ~ supp, data = ToothGrowth)
+resultado
+```
+
+--
+**Interpretação:** O p-valor (p = 0.23) é maior que o nível de significância de 0.05. Assim, não rejeitamos a hipótese nula (igualdade de variância) e podemos afirmar que não há diferença significativa entre as duas variâncias. 
+
+---
+# Comparando múltiplas variâncias
+
+Vamos usar os testes de:
+
+- Bartlett
+- Levene
+- Flinger-Killen
+
+
+
+--
+## Hipóteses estatísticas
+- Para todos os testes mencionados, a hipótese nula é de que todas variâncias populacionais são iguais, a hipótese alternativa é de que pelo menos uma delas é diferente. Consequentemente, p-valores menores que 0.05 sugerem que as variâncias são significativemente diferentes, e portanto, a suposição de homogeneidade da variância é violada. 
+
+---
+# Comparando múltiplas variâncias: teste de Bartlett

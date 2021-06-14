@@ -1,0 +1,98 @@
+---
+title: "Capítulo 3 - Testando Normalidade"
+author: "Stat-Tech"
+date: "23 de Janeiro de 2021"
+output: 
+  ioslides_presentation:
+    logo: logo2.png
+    template: quarterly-report.html
+---
+
+## Bibliotecas
+
+
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+library(ggpubr)
+library(rstatix)
+library(dplyr)
+```
+
+## Base de dados
+```{r}
+set.seed(1234)
+ToothGrowth %>% sample_n_by(supp, dose, size = 1)
+```
+
+## Checando Normalidade
+
+- Métodos Visuais
+
+1. **Gráfico de densidade:** fornece um apelo visual para verificar se a distribuição tem forma de sino.
+2. **Gráfico QQ:** (quantil-quantil) desenha a correlação entre uma dada amostra e a distribuição normal. Uma linha de referência de 45 graus também é plotada. Num gráfico qq, cada observação é plotada como um único ponto. Se os dados são normais, os pontos devem formar uma linha reta.
+
+## Gráfico de densidade
+
+```{r warning=FALSE, message=FALSE}
+library("ggpubr")
+ggdensity(ToothGrowth$len, fill = "lightgray")
+```
+
+
+##  Gráfico QQ:
+```{r}
+ggqqplot(ToothGrowth$len)
+```
+
+## Interpretação
+
+Todos os pontos caem aproximadamente próximos à linha de referência, podemos assumir normalidade. 
+
+## Teste de Shapiro-Wilk
+
+- $H_0:$ Os dados seguem uma distribuição Normal
+- Se o teste é **significativo**, os dados **não são** normalmente distribuídos.
+- O teste de **Shapiro-Wilk** é altamente recomendado para testar normalidade e fornce um maior poder que o teste de Kolmogorov-Smirnov (K-S).
+- É baseado na correlação entre os dados e os correposndentes scores normais.
+
+## Teste de Shapiro-Wilk para uma variável
+
+```{r}
+ToothGrowth %>% 
+  shapiro_test(len)
+```
+p > 0.05, implicando que os dados não são significativamente diferente da distribuição normal. Em outras palavras, podemos assumir normalidade. 
+
+## Teste de Shapiro-Wilk para dados agrupados
+
+```{r}
+ToothGrowth %>% 
+  group_by(dose) %>% 
+  shapiro_test(len)
+```
+
+## Teste de Shapiro-Wilk para múltiplas variáveis
+
+```{r}
+iris %>% 
+  shapiro_test(Sepal.Length, Petal.Length)
+```
+Para ambas as variáveis o teste foi significativo (p < 0.05), assim, concluimos que a as variáveis não seguem uma distribuição normal. 
+
+## Gráfico de densidade
+
+```{r}
+ggdensity(iris$Sepal.Length, fill = "lightgray")
+```
+
+## Gráfico Q-Q
+
+```{r}
+ggqqplot(iris$Sepal.Length)
+```
+
+## Sumário
+
+- Para amostras maiores que 50, o gráfico Q-Q é preferível porque para grandes amostras, o teste de Shapiro-Wilk se torna muito sensível mesmo para o menor desvio da normalidade.
+
+- Consequentemente, devemos combinar a inspeção visual e o teste estatístico como uma melhor estratégia. 

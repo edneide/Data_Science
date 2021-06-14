@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Homogeneidade da Variância</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="" />
+    <meta name="date" content="2021-06-12" />
+    <script src="libs/header-attrs-2.8/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Homogeneidade da Variância
+### <img src = 'https://raw.githubusercontent.com/stat-techbr/introducao_a_estatistica_com_R/main/logo-stat-tech-color-fundo-escuro-horiz.png' width = '50%'>
+### Edneide Ramalho
+### 2021-06-12
+
+---
+
+
+# Introdução
+
+-   Descreveremos os métodos para checar a **homogeneidade de variância** em dois ou mais grupos.
+
+-   Alguns testes estatísticos com teste t para amostras independentes e ANOVA, assumem que as variâncias sejam iguais entre os grupos.
+
+- Testes que podemos ser utilizados para acessar a homogeneidade de variâncias:
+
+--
+  + **Teste F:** Compara as variâncias de dois grupos. Os dados devem ser **normalmente** distribuídos.
+
+--
+  + **Teste de Bartlett**: Compara as variâncias de dois grupos. Os dados devem ser **normalmente** distribuídos.
+  
+--
+  + **Teste de Levene**: Uma alternativa robusta ao teste de Bartlett que é menos sensível aos desvios da normalidade.
+
+--
+  + **Teste de Fligner-Killeen**: teste **não-paramétrico** que é muito robusto contra os desvios da normalidade.
+
+---
+# Pré-requisito
+
+- Precisaremos carregar o pacote `tidyverse` para auxiliar na manipulação dos dados.
+
+
+```r
+library(tidyverse)
+```
+
+--
+- Carregando a base de dados `ToothGrowth` e olhando as primeiras linhas:
+
+
+```r
+head(ToothGrowth)
+```
+
+```
+##    len supp dose
+## 1  4.2   VC  0.5
+## 2 11.5   VC  0.5
+## 3  7.3   VC  0.5
+## 4  5.8   VC  0.5
+## 5  6.4   VC  0.5
+## 6 10.0   VC  0.5
+```
+
+---
+# Pré-requisito
+- Olhando algumas características das variáveis usando `glimpse`:
+
+
+```r
+glimpse(ToothGrowth)
+```
+
+```
+## Rows: 60
+## Columns: 3
+## $ len  &lt;dbl&gt; 4.2, 11.5, 7.3, 5.8, 6.4, 10.0, 11.2, 11.2, 5.2, 7.0, 16.5, 16.5,…
+## $ supp &lt;fct&gt; VC, VC, VC, VC, VC, VC, VC, VC, VC, VC, VC, VC, VC, VC, VC, VC, V…
+## $ dose &lt;dbl&gt; 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, …
+```
+
+---
+# Preparação dos dados
+
+- Temos que transformar a variável `dose` em um fator, originalmente ela está como variável `dbl` (double, numérica)
+
+
+```r
+ToothGrowth$dose &lt;- as.factor(ToothGrowth$dose)
+```
+
+--
+
+- Checando:
+
+```r
+class(ToothGrowth$dose)
+```
+
+--
+
+```
+## [1] "factor"
+```
+
+---
+# Comparando duas variâncias: Teste F
+
+- **Lembre-se**: Você precisa checar se os dados são normalmente distribuídos. 
+
+- Quando queremos realizar o teste t para duas amostras, por exemplo, necessitamos checar a igualdade de variância nas dua amostras. 
+
+## Hipóteses estatísticas
+  + Hipótese nula `\((H_0)\)`: as variâncias dos dois grupos são **iguais**.
+  + Hipótese alternativa `\((H_1)\)`: As variâncias são **diferentes**. 
+
+- Computamos o teste F usando a função `var.test()`. O teste considera a razão entre as variâncias de dois grupos, A e B (`Var(A)/Var(B)`). Quanto mais distante de 1 esta razão for, mais forte é a evidência de que as variâncias são diferentes.
+
+---
+# Comparando duas variâncias: Teste F
+
+- Vamos testar a igualdade de variâncias entre os dois grupos (OJ e VC) da variável `supp` para a variável `len`:
+
+
+
+```r
+table(ToothGrowth$supp)
+```
+
+--
+
+```
+## 
+## OJ VC 
+## 30 30
+```
+
+
+---
+# Comparando duas variâncias: Teste F
+- Aplicando o teste:
+
+```r
+resultado &lt;- var.test(len ~ supp, data = ToothGrowth)
+resultado
+```
+
+--
+
+```
+## 
+## 	F test to compare two variances
+## 
+## data:  len by supp
+## F = 0.6386, num df = 29, denom df = 29, p-value = 0.2331
+## alternative hypothesis: true ratio of variances is not equal to 1
+## 95 percent confidence interval:
+##  0.3039488 1.3416857
+## sample estimates:
+## ratio of variances 
+##          0.6385951
+```
+
+--
+**Interpretação:** O p-valor (p = 0.23) é maior que o nível de significância de 0.05. Assim, não rejeitamos a hipótese nula (igualdade de variância) e podemos afirmar que não há diferença significativa entre as duas variâncias. 
+
+---
+# Comparando múltiplas variâncias
+
+Vamos usar os testes de:
+
+- Bartlett
+- Levene
+- Flinger-Killen
+
+
+
+--
+## Hipóteses estatísticas
+- Para todos os testes mencionados, a hipótese nula é de que todas variâncias populacionais são iguais, a hipótese alternativa é de que pelo menos uma delas é diferente. Consequentemente, p-valores menores que 0.05 sugerem que as variâncias são significativemente diferentes, e portanto, a suposição de homogeneidade da variância é violada. 
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

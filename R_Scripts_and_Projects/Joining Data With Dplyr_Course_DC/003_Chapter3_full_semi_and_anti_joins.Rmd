@@ -391,5 +391,98 @@ inventory_parts_themes <- inventories %>%
     -   Again, add a percent column to display the percent of the total.
 
 ```{r}
+batman_colors <- inventory_parts_themes %>%
+  # Filter the inventory_parts_themes table for the Batman theme
+  filter(name_theme == "Batman") %>%
+  group_by(color_id) %>%
+  summarize(total = sum(quantity)) %>%
+  # Add a percent column of the total divided by the sum of the total 
+  mutate(percent = total/sum(total))
 
+# Filter and aggregate the Star Wars set data; add a percent column
+star_wars_colors <- inventory_parts_themes %>%
+  filter(name_theme == "Star Wars") %>% 
+  group_by(color_id) %>% 
+  summarize(total = sum(quantity)) %>% 
+  mutate(percent = total/sum(total))
+```
+
+### **Combining sets**
+
+The data you aggregated in the last exercise has been preloaded for you as `batman_colors` and `star_wars_colors`. Prior to visualizing the data, you'll want to combine these tables to be able to directly compare the themes' colors.
+
+    batman_colors <- inventory_parts_themes %>%
+      filter(name_theme == "Batman") %>%
+      group_by(color_id) %>%
+      summarize(total = sum(quantity)) %>%
+      mutate(percent = total / sum(total))
+
+    star_wars_colors <- inventory_parts_themes %>%
+      filter(name_theme == "Star Wars") %>%
+      group_by(color_id) %>%
+      summarize(total = sum(quantity)) %>%
+      mutate(percent = total / sum(total))
+
+-   Join the `batman_colors` and `star_wars_colors` tables; be sure to include all observations from both tables.
+
+-   Replace the NAs in the `total_batman` and `total_star_wars` columns.
+
+```{r}
+batman_colors %>%
+  # Join the Batman and Star Wars colors
+  full_join(star_wars_colors, by = "color_id", suffix = c("_batman", "_star_wars")) %>%
+  # Replace NAs in the total_batman and total_star_wars columns
+  replace_na(list(total_batman = 0, 
+                  total_star_wars = 0)) %>%
+  inner_join(colors, by = c("color_id" = "id")) 
+```
+
+-   Add a `difference` column that calculates the difference between `percent_batman` and `percent_star_wars`, and a `total` column, which is the sum of `total_batman` and `total_star_wars`.
+
+-   Add a `filter` to select observations where `total` is at least 200.
+
+```{r}
+batman_colors %>%
+  full_join(star_wars_colors, by = "color_id", suffix = c("_batman", "_star_wars")) %>%
+  replace_na(list(total_batman = 0, total_star_wars = 0)) %>%
+  inner_join(colors, by = c("color_id" = "id")) %>%
+  # Create the difference and total columns
+  mutate(difference = percent_batman - percent_star_wars,
+         total = total_batman + total_star_wars) %>%
+  # Filter for totals greater than 200
+  filter(total >= 200)
+```
+
+### **Visualizing the difference: Batman and Star Wars**
+
+In the last exercise, you created `colors_joined`. Now you'll create a bar plot with one bar for each color (`name`), showing the difference in percentages.
+
+Because factors and visualization are beyond the scope of this course, we've done some processing for you: here is the code that created the `colors_joined` table that will be used in the video.
+
+```{r}
+colors_joined <- batman_colors %>%
+  full_join(star_wars_colors, by = "color_id", suffix = c("_batman", "_star_wars")) %>%
+  replace_na(list(total_batman = 0, total_star_wars = 0)) %>%
+  inner_join(colors, by = c("color_id" = "id")) %>%
+  mutate(difference = percent_batman - percent_star_wars,
+         total = total_batman + total_star_wars) %>%
+  filter(total >= 200) %>%
+  mutate(name = fct_reorder(name, difference)) 
+```
+
+```{r}
+colors_joined <- colors_joined %>% 
+  mutate(rgb = paste0("#", rgb))
+```
+
+-   Create a bar plot using the `colors_joined` table to display the most prominent colors in the Batman and Star Wars themes, with the bars colored by their `name`.
+
+```{r}
+color_palette <- setNames(colors_joined$rgb, colors_joined$name)
+# Create a bar plot using colors_joined and the name and difference columns
+ggplot(colors_joined, aes(name, difference, fill = name)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = color_palette, guide = FALSE) +
+  labs(y = "Difference: Batman - Star Wars")
 ```
