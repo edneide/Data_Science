@@ -81,3 +81,44 @@ knn(train = signs[-1], test = next_sign, cl = sign_types)
 ```
 
 Based on the kNN algorithm, the next sign is a Stop sign.
+
+## **Exploring the traffic sign dataset**
+
+To better understand how the `knn()` function was able to classify the stop sign, it may help to examine the training dataset it used.
+
+Each previously observed street sign was divided into a 4x4 grid, and the red, green, and blue level for each of the 16 center pixels is recorded as illustrated here.
+
+![](stop_sign.png){width="527"}
+
+The result is a dataset that records the `sign_type` as well as 16 x 3 = 48 color properties of each sign.
+
+-   Use the `str()` function to examine the `signs` dataset.
+
+-   Use `table()` to count the number of observations of each sign type by passing it the column containing the labels.
+
+-   Run the provided `aggregate()` command to see whether the average red level might vary by sign type.
+
+```{r}
+# Examine the structure of the signs dataset
+str(signs)
+
+# Count the number of signs of each type
+table(signs$sign_type)
+
+# Check r10's average red level by sign type
+aggregate(r10 ~ sign_type, data = signs, mean)
+```
+
+As you might have expected, stop signs tend to have a higher average red value. This is how kNN identifies similar signs.
+
+## **Classifying a collection of road signs**
+
+Now that the autonomous vehicle has successfully stopped on its own, your team feels confident allowing the car to continue the test course.
+
+The test course includes 59 additional road signs divided into three types:
+
+![Stop Sign](https://assets.datacamp.com/production/course_2906/datasets/knn_stop_28.gif) ![Speed Limit Sign](https://assets.datacamp.com/production/course_2906/datasets/knn_speed_55.gif) ![Pedestrian Sign](https://assets.datacamp.com/production/course_2906/datasets/knn_peds_47.gif)
+
+At the conclusion of the trial, you are asked to measure the car's overall performance at recognizing these signs.
+
+The `class` package and the dataset `signs` are already loaded in your workspace. So is the dataframe `test_signs`, which holds a set of observations you'll test your model on.
