@@ -265,4 +265,146 @@ tagged_answers %>%
 
 # **The bind_rows verb**
 
-\
+-   Sometimes, we want to stuck a table at the top of another.
+
+```{r}
+questions %>% 
+  bind_rows(answers)
+```
+
+It is important to track the tables adding one more column to identify if it is from the question or the answer table.
+
+## Using bind rows
+
+```{r}
+questions_type <- questions %>% 
+  mutate(type = "question")
+```
+
+```{r}
+answers_type <- answers %>% 
+  mutate(type = "answer")
+```
+
+```{r}
+questions_type
+answers_type
+```
+
+```{r}
+posts <- bind_rows(questions_type, answers_type)
+posts
+```
+
+## Aggregating
+
+```{r}
+posts %>% 
+  group_by(type) %>% 
+  summarize(average_score = mean(score))
+```
+
+## Creating date variable
+
+```{r}
+library(lubridate)
+
+posts %>% 
+  mutate(year = year(creation_date))
+```
+
+## Counting date variable
+
+```{r}
+question_answer_years <- posts %>% 
+  mutate(year = year(creation_date)) %>% 
+  count(year, type)
+question_answer_years
+```
+
+## Plotting date variable
+
+```{r}
+question_answer_years %>% 
+  ggplot(aes(year, n, color = type)) +
+  geom_line()
+```
+
+## Exercises
+
+### **Joining questions and answers with tags**
+
+To learn more about the `questions` and `answers` table, you'll want to use the `question_tags` table to understand the tags associated with each question that was asked, and each answer that was provided. You'll be able to combine these tables using two inner joins on both the `questions` table and the `answers` table.
+
+-   Use two inner joins to combine the `question_tags` and `tags` tables with the `questions` table.
+
+-   Now, use two inner joins to combine the `question_tags` and `tags` tables with the `answers` table.
+
+```{r}
+# Inner join the question_tags and tags tables with the questions table
+questions %>%
+  inner_join(question_tags, by = c("id" = "question_id")) %>%
+  inner_join(tags, by = c("tag_id" = "id"))
+
+# Inner join the question_tags and tags tables with the answers table
+answers %>%
+  inner_join(question_tags, by = "question_id") %>%
+  inner_join(tags, by = c("tag_id" = "id"))
+```
+
+### **Binding and counting posts with tags**
+
+The tables you created in the previous exercise have been preloaded as `questions_with_tags` and `answers_with_tags`. First, you'll want to combine these tables into a single table called `posts_with_tags`. Once the information is consolidated into a single table, you can add more information by creating a date variable using the `lubridate` package, which has been preloaded for you.
+
+```{r}
+questions_with_tags <- questions %>%
+  inner_join(question_tags, by = c("id" = "question_id")) %>%
+  inner_join(tags, by = c("tag_id" = "id"))
+```
+
+```{r}
+answers_with_tags <- answers %>%
+  inner_join(question_tags, by = "question_id") %>%
+  inner_join(tags, by = c("tag_id" = "id"))
+```
+
+-   Combine the `questions_with_tags` and `answers_with_tags` tables into `posts_with_tags`.
+
+-   Add a `year` column to the `posts_with_tags` table, then aggregate to count posts by `type`, `year`, and `tag_name`.
+
+```{r}
+# Combine the two tables into posts_with_tags
+posts_with_tags <- bind_rows(questions_with_tags %>% mutate(type = "question"),
+                              answers_with_tags %>% mutate(type = "answer"))
+
+
+# Add a year column, then aggregate by type, year, and tag_name
+posts_with_tags %>%
+    mutate(year = year(creation_date)) %>%
+    count(type, year, tag_name) 
+```
+
+### **Visualizing questions and answers in tags**
+
+In the last exercise, you modified the `posts_with_tags` table to add a `year` column, and aggregated by `type`, `year`, and `tag_name`. The modified table has been preloaded for you as `by_type_year_tag`, and has one observation for each type (question/answer), year, and tag. Let's create a plot to examine the information that the table contains about questions and answers for the `dplyr` and `ggplot2` tags. The `ggplot2` package has been preloaded for you.
+
+```{r}
+by_type_year_tag <- posts_with_tags %>%
+  mutate(year = year(creation_date)) %>%
+  count(type, year, tag_name)
+```
+
+-   Filter the `by_type_year_tag` table for the dplyr and ggplot2 tags.
+
+-   Create a line plot with that filtered table that plots the frequency (`n`) over time, colored by question/answer and faceted by tag.
+
+```{r}
+# Filter for the dplyr and ggplot2 tag names 
+by_type_year_tag_filtered <- by_type_year_tag %>%
+  filter(tag_name %in% c("dplyr", "ggplot2"))
+
+# Create a line plot faceted by the tag name 
+ggplot(by_type_year_tag_filtered, aes(x = year, y = n, color = type)) +
+  geom_line() +
+  facet_wrap(~ tag_name)
+```

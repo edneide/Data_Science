@@ -1,0 +1,83 @@
+---
+title: 'Chapter 1: k-Nearest Neighbors (kNN)'
+author: "by Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: flatly
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+# Libraries
+
+```{r}
+library(class)
+library(tidyverse)
+```
+
+# Data sets
+
+```{r}
+loans <- read.csv("https://assets.datacamp.com/production/repositories/718/datasets/7805fceacfb205470c0e8800d4ffc37c6944b30c/loans.csv")
+
+locations <- read.csv("https://assets.datacamp.com/production/repositories/718/datasets/571628c39048df59c40c9dcfba146a2cf7a4a0e3/locations.csv")
+
+knn_traffic_signs <- read.csv("https://assets.datacamp.com/production/repositories/718/datasets/c274ea22cc3d7e12d7bb9fdc9c2bdabe9ab025f4/knn_traffic_signs.csv")
+
+donors <- read.csv("https://assets.datacamp.com/production/repositories/718/datasets/9055dac929e4515286728a2a5dae9f25f0e4eff6/donors.csv")
+
+
+```
+
+# Exercises
+
+## **Recognizing a road sign with kNN**
+
+After several trips with a human behind the wheel, it is time for the self-driving car to attempt the test course alone.
+
+As it begins to drive away, its camera captures the following image:
+
+Can you apply a kNN classifier to help the car recognize this sign?
+
+The dataset `signs` is loaded in your workspace along with the dataframe `next_sign`, which holds the observation you want to classify.
+
+-   Load the `class` package.
+
+-   Create a vector of sign labels to use with kNN by extracting the column `sign_type` from `signs`.
+
+-   Identify the `next_sign` using the `knn()` function.
+
+    -   Set the `train` argument equal to the `signs` data frame *without* the first column.
+
+    -   Set the `test` argument equal to the data frame `next_sign`.
+
+    -   Use the vector of labels you created as the `cl` argument.
+
+```{r}
+signs <- knn_traffic_signs %>% 
+  dplyr::select(sign_type:b16)
+
+next_sign <- knn_traffic_signs %>% 
+  dplyr::filter(sample == "example")
+next_sign <- next_sign %>% 
+  dplyr::select(r1:b16)
+```
+
+```{r}
+# Load the 'class' package
+library(class)
+
+# Create a vector of labels
+sign_types <- signs$sign_type
+
+# Classify the next sign observed
+knn(train = signs[-1], test = next_sign, cl = sign_types)
+```
+
+Based on the kNN algorithm, the next sign is a Stop sign.
