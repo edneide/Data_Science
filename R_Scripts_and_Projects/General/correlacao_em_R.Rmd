@@ -7,7 +7,7 @@ output: html_document
 
 Fonte: <https://www.r-bloggers.com/2021/05/correlation-in-r-na-friendliness-accepting-matrix-as-input-data-returning-p-values-visualization-and-pearson-vs-spearman/?utm_source=feedburner&utm_medium=email&utm_campaign=Feed%3A+RBloggers+%28R+bloggers%29>
 
-Muitas vezes necessitamos comaprar diferentes variáveis numéricas, e estudar se estas são linearmente dependentes. Estas informações também podem nos auxiliar a detectar covariáveis e definir fórmulas que se ajustem aos efeitos impostos por estas covariáveis. Temos os métodos de Pearson e de postos de Spearman.
+Muitas vezes necessitamos comparar diferentes variáveis numéricas, e estudar se estas são linearmente dependentes. Estas informações também podem nos auxiliar a detectar covariáveis e definir fórmulas que se ajustem aos efeitos impostos por estas covariáveis. Temos os métodos de Pearson e de postos de Spearman.
 
 Primeiro, vamos construir uma matriz 10x5 e prrenchê-la com 10 posições aleatórias.
 
