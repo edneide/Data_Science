@@ -1,0 +1,79 @@
+---
+title: "Capítulo 2 - Testes Estatísticos e Suposições"
+author: "Stat-Tech"
+date: "23 de Janeiro de 2021"
+output: 
+  ioslides_presentation:
+    logo: logo2.png
+    template: quarterly-report.html
+---
+
+
+
+## 1. Questões de pesquisa e estatísticas
+
+Questões de pesquisas mais populares:
+
+1. se **duas variáveis** são **correlacionadas**, i. e., associadas (n = 2)
+2. se **mútiplas variáveis** são **correlacionadas** (n > 2)
+3. se **dois grupos** (n = 2) de amostras **diferem** um do outro.
+4. se **múltiplos grupos** (n > 2) de amostras **diferem** entre si.
+5. se a **variabilidade** de duas ou mais amostras diferem
+
+## 1. Questões de pesquisa e estatísticas
+
+Cada uma destas questões podem ser respondidas usando os seguintes testes estatísticos:
+
+1. **Teste de correlação** entre duas variáveis
+2. **Matriz de correlação** entre múltiplas variáveis.
+3. **Comparação de média de dois grupos:**
+  + **Teste t de Student** (paramétrico)
+  + **Teste de postos de Wilcoxon** (não-paramétrico)
+
+## 1. Questões de pesquisa e estatísticas
+
+**4.** **Comparação de médias de mais de dois grupos**
+
+- **teste ANOVA** (análise de variância, paramétrico): extensão do teste t para comparar mais de dois grupos.
+- **teste da soma de postos de Kruskall-Wallis** (não-paramétrico): extensão do teste de Wilcoxon para comparar mais de dois grupos. 
+    
+**5.** **Comparando variâncias:**
+
+- Comparando variância de dois grupos: **teste F** (paramétrico)
+
+- Comparação de variâncias de mais de dois grupos: **teste de Bartlett** (paramétrico), **teste de Levene** ( paramétrico) e **teste de Flingner-Killeen** (não-paramétrico).
+
+## 2. Suposições dos testes estatísticos
+
+Muitos dos métodos estatísticos utilizados assumem características sobre os dados:
+
+- Os dados são **normalmente** distribuídos
+- as **variâncias** dos grupos a serem comparados são homogênias (iguais)
+
+Para que as conclusões seram confiáveis, estas suposições devem ser levadas a sério. 
+
+## 2. Suposições dos testes estatísticos
+
+Os testes:
+
+- Correlação
+- Teste t
+- ANOVA
+
+são chamados **paramétricos**, porque sua validade depende da distribuição dos dados. 
+
+- Antes de realizar testes **paramétricos**, alguns testes preliminares devems ser executados.
+- Quando estas suposições são violadas, testes **não-paramétricos** são recomendados. 
+
+## 3. Testando Normalidade
+
+1. Com amostras **grandes o suficiente** (n > 30) a violação das suposições de normalidade não devem gerar grandes problemas.
+
+2. Porém, para ser consistente, o **teste de significância de Shapiro-Wilk** deve ser utilizado para verificar se os dados não possuem um grande desvio da normalidade. 
+
+## 4. Testando igualdade de variância
+
+- O teste **t de Student** e a **ANOVA** assume que as amostras a serem comparadas têm variâncias iguais. 
+- Se as amostras a serem comparadas seguem a distribuição normal, então é possível usar:
+  + **teste F** para comparar as variâncias de duas amostras
+  + **teste de Bartlett ou Levene** para comparar as variâncias de  múltiplas amostras. 

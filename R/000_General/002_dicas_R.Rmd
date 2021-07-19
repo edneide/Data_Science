@@ -1,0 +1,54 @@
+---
+title: "Dicas de R"
+author: "by Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: flatly
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+# Update R
+
+Você pode usar o comando abaixo para atualizar a versão do R.
+
+```{r, eval=FALSE}
+library(installr)
+installr::updater()
+```
+
+# Exemplos no novo R versão 4.1.0 (Novo pipe)
+
+Fonte: Live disponível em <https://www.youtube.com/watch?v=RPSLFU_5OGk>
+
+```{r}
+#install.packages("remotes")
+remotes::install_github("cienciadedatos/dados")
+```
+
+-   Usando o pipe `%>%`:
+
+```{r}
+library(tidyr)
+dados::dados_starwars %>%
+  tidyr::drop_na() %>% 
+  dplyr::select(altura) %>% 
+  sum
+```
+
+-   Usando o pipe `|>`
+
+```{r}
+dados::dados_starwars |>
+  tidyr::drop_na() |>
+  dplyr::select(altura) |>
+  sum()
+```
+
+Para o pipe `%>%` não precisou usar parênteses no final da função `sum`.

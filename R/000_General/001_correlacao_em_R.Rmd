@@ -1,0 +1,129 @@
+---
+title: "CORRELAÇÃO EM R"
+author: "by Edneide Ramalho"
+date: "5/30/2021"
+output: html_document
+---
+
+Fonte: <https://www.r-bloggers.com/2021/05/correlation-in-r-na-friendliness-accepting-matrix-as-input-data-returning-p-values-visualization-and-pearson-vs-spearman/?utm_source=feedburner&utm_medium=email&utm_campaign=Feed%3A+RBloggers+%28R+bloggers%29>
+
+Muitas vezes necessitamos comparar diferentes variáveis numéricas, e estudar se estas são linearmente dependentes. Estas informações também podem nos auxiliar a detectar covariáveis e definir fórmulas que se ajustem aos efeitos impostos por estas covariáveis. Temos os métodos de Pearson e de postos de Spearman.
+
+Primeiro, vamos construir uma matriz 10x5 e prrenchê-la com 10 posições aleatórias.
+
+```{r}
+# Matriz
+dat <- matrix(rnorm(50), nrow=10, ncol=5)
+```
+
+-   Susbstituindo 10 valores por NA na matriz:
+
+```{r}
+set.seed(877)
+naInd <- sample(1:length(dat), 10)
+dat[naInd] <- NA
+```
+
+```{r}
+colnames(dat) <- paste0("col", 1:ncol(dat))
+rownames(dat) <- paste0("row", 1:nrow(dat))
+```
+
+Vamos definir uma função de correlação que retornará os coeficientes de correlação e os p-valores:
+
+```{r}
+mycor <- function(x, ...){
+  r <- apply(x, 2, function(j){
+    apply(x, 2, function(i){
+      as.numeric(cor.test(i,j, ...)$estimate)
+    })
+  })
+  P <- apply(x, 2, function(j){
+    apply(x, 2, function(i){
+      as.numeric(cor.test(i, j,...)$p.value)
+    })
+  })
+  out <- c()
+  out$P <- P
+  out$r <- r
+  return(out)
+}
+```
+
+-   Rodando a função na matriz `dat`:
+
+```{r}
+time1 <- Sys.time()
+myCorDat <- mycor(dat, method="pearson", na.action=na.omit)
+time2 <- Sys.time()
+```
+
+```{r}
+# Run time
+runTimeMyCor <- difftime(time2, time1)
+runTimeMyCor
+```
+
+```{r}
+# Result
+myCorDat
+```
+
+Usar `cor.test` em um loop ou em uma finção `apply` é ineficiente. A função criada demora \~0.02 segundos para rodar em dados de tamanho 50. Uma maneira de contornar isto é instalando o pacote `Hmisc` e usando a função `rcorr()`.
+
+**OBS.:** Ler sobre o pacote `Hmisc`.
+
+```{r}
+library(Hmisc)
+time1 <- Sys.time()
+rcorrDat <- Hmisc::rcorr(dat, type="pearson")
+time2 <- Sys.time()
+(runTimeRcorr <-  difftime(time2, time1))
+```
+
+```{r}
+rcorrDat
+```
+
+# Gráfico de correlação
+
+```{r}
+library(corrplot)
+# jpeg("corplotTest.jpg", width=800,
+#      height=800,
+#      quality=100,
+#      pointsize = 24)
+corrplot(cor=myCorDat$r,
+         p.mat=myCorDat$P,
+         type="full", insig="pch", sig.level=.1,
+         pch.cex=.9)
+# dev.off()
+```
+
+Os x\`s no gráfico mostram correlações **não significativas**. Note que o nível de sginificância foi de 10% (0.1), um pouco mais ralaxado do que o usual 5% (0.05).
+
+# Pearson vs. Spearman
+
+A correlação de Spearman, que é um acorrelação de postos (ranking) é mais utilizada para dados assimétricos e com outliers nos dados e detecta correlações fortes entre variáveis x e y.
+
+```{r}
+# Defining an unskewed data
+x<- 1:50
+# Defining a highly skewed data
+y<-exp(x)
+
+e1071::skewness(x)
+#[1] 0
+e1071::skewness(y)
+#[1] 5.574573
+
+cor.test(x=x, y=y, method="pearson")
+```
+
+```{r}
+cor.test(x=x, y=y, method="spearman")
+```
+
+```{r}
+plot(x, y, pch=16, xlab="x", ylab="y = exp(x)")
+```

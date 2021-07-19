@@ -1,0 +1,82 @@
+---
+title: "Easystats Performance"
+author: "by Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: flatly
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+This script is based on the video:
+
+<https://www.youtube.com/watch?v=Bi8sHIo3s1Y>
+
+from the Business Science YouTube Chanel
+
+# Libraries
+
+```{r}
+# install.packages("performance", dependences = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(performance)    
+```
+
+# Data
+
+```{r}
+glimpse(mpg)
+```
+
+We are going to perform a linear regression and check the model performance.
+
+# Performance
+
+```{r}
+model_lm <- lm(hwy ~ displ + class, data = mpg)
+
+model_lm
+
+check_model(model_lm)
+```
+
+-   In the first plot we check the **linearity**, the reference line should be flat and horizontal. The homogeneity of variance plot give us a similar result, where the reference line should be flat and horizontal as well.
+
+-   For the **collinearity plot**: High bars indicate collinearity issues. Features with high collinearity should be removed from models that don't include regularization. (e. g. Linear Regression).
+
+-   For the **Influential Observations plot**: We check if there is any point outside of the dashed lines., you may want to remove this point of your model to improve performance.
+
+-   **Q-Q Plot**: See how model residuals compare to a Normal Distribution. the points should follow the line. In the plot, we can see that in the end, points fall from the green line. We can investigate those points.
+
+-   **Normality Residuals**: make sure the faded blue distribution is close to the green normal curve. We see some skew towards the right.
+
+# Tidymodels
+
+-   Tidymodels are similar to Scikit Learn in Python.
+
+-   A modeling and machine learning framework in R.
+
+```{r}
+library(tidymodels)
+```
+
+## Linear regression
+
+```{r}
+model_lm_tidy <- linear_reg() %>% 
+  set_engine("lm") %>% 
+  fit(hwy ~ displ + class, data = mpg)
+```
+
+```{r}
+check_model(model_lm_tidy)
+```

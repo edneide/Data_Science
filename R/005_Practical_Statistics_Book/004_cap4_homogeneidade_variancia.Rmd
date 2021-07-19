@@ -1,0 +1,23 @@
+---
+title: "Capítulo 4 - Homogeneidade de Variância"
+author: "Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  ioslides_presentation:
+    logo: logo2.png
+    template: quarterly-report.html
+---
+
+## Introdução
+
+-   Descreveremos os métodos para checar a **homogeneidade de variância** em dois ou mais grupos.
+
+-   Alguns testes estatísticos com teste t para amostras independentes e ANOVA, assumem que as variâncias sejam iguais entre os grupos.
+
+## Introdução
+
+-   Testes que podemos ser utilizados para acessae a homogeneidade de variâncias.
+
+    -   ***Teste F:*** Compara as variâncias de dois grupos. Os dados devem ser **normalmente** distribuídos.
+
+    -   ***Teste de Bartlett***:
