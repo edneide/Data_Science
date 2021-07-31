@@ -242,7 +242,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Random Numbers and Probability</h1>
 <h4 class="author">by Edneide Ramalho</h4>
-<h4 class="date">25/07/2021</h4>
+<h4 class="date">31/07/2021</h4>
 
 </div>
 
@@ -483,9 +483,8 @@ prob_between_10_and_20 &lt;- punif(20, min, max) - punif(10, min, max)
 prob_between_10_and_20</code></pre>
 <pre><code>## [1] 0.3333333</code></pre>
 </div>
-</div>
-<div id="the-binomial-distribution" class="section level1" number="4">
-<h1 number="4"><span class="header-section-number">4</span> The binomial distribution</h1>
+<div id="the-binomial-distribution" class="section level2" number="3.3">
+<h2 number="3.3"><span class="header-section-number">3.3</span> The binomial distribution</h2>
 <pre class="r"><code>simulation_nb &lt;- seq(1, 1000)</code></pre>
 <pre class="r"><code>set.seed(334)</code></pre>
 <p>Generate 1000 wait times from the continuous uniform distribution that models Amir’s wait time. Add this as a new column called time in the wait_times data frame.</p>
@@ -538,10 +537,11 @@ dbinom(7, 10, 0.5)</code></pre>
 <pre class="r"><code># the same as
 1 - pbinom(7, 10, 0.5)</code></pre>
 <pre><code>## [1] 0.0546875</code></pre>
-<div id="exercises" class="section level2" number="4.1">
-<h2 number="4.1"><span class="header-section-number">4.1</span> Exercises</h2>
-<div id="simulating-sales-deals" class="section level3" number="4.1.1">
-<h3 number="4.1.1"><span class="header-section-number">4.1.1</span> Simulating sales deals</h3>
+</div>
+<div id="exercises" class="section level2" number="3.4">
+<h2 number="3.4"><span class="header-section-number">3.4</span> Exercises</h2>
+<div id="simulating-sales-deals" class="section level3" number="3.4.1">
+<h3 number="3.4.1"><span class="header-section-number">3.4.1</span> Simulating sales deals</h3>
 <p>Assume that Amir usually works on 3 deals per week, and overall, he wins 30% of deals he works on. Each deal has a binary outcome: it’s either lost, or won, so you can model his sales deals with a binomial distribution. In this exercise, you’ll help Amir simulate a year’s worth of his deals so he can better understand his performance.</p>
 <ol style="list-style-type: decimal">
 <li>Set the random seed to 10 and simulate a single deal.</li>
@@ -574,8 +574,8 @@ deals &lt;- rbinom(52, 3, 0.3)
 mean(deals)</code></pre>
 <pre><code>## [1] 0.8076923</code></pre>
 </div>
-<div id="calculating-binomial-probabilities" class="section level3" number="4.1.2">
-<h3 number="4.1.2"><span class="header-section-number">4.1.2</span> Calculating binomial probabilities</h3>
+<div id="calculating-binomial-probabilities" class="section level3" number="3.4.2">
+<h3 number="3.4.2"><span class="header-section-number">3.4.2</span> Calculating binomial probabilities</h3>
 <p>Just as in the last exercise, assume that Amir wins 30% of deals. He wants to get an idea of how likely he is to close a certain number of deals each week. In this exercise, you’ll calculate what the chances are of him closing different numbers of deals using the binomial distribution.</p>
 <ol style="list-style-type: decimal">
 <li>What’s the probability that Amir closes all 3 deals in a week?</li>
@@ -596,8 +596,8 @@ pbinom(1, 3, 0.3)</code></pre>
 pbinom(1, 3, 0.3, lower.tail = FALSE)</code></pre>
 <pre><code>## [1] 0.216</code></pre>
 </div>
-<div id="how-many-sales-will-be-won" class="section level3" number="4.1.3">
-<h3 number="4.1.3"><span class="header-section-number">4.1.3</span> How many sales will be won?</h3>
+<div id="how-many-sales-will-be-won" class="section level3" number="3.4.3">
+<h3 number="3.4.3"><span class="header-section-number">3.4.3</span> How many sales will be won?</h3>
 <p>Now Amir wants to know how many deals he can expect to close each week if his win rate changes. Luckily, you can use your binomial distribution knowledge to help him calculate the expected value in different situations. Recall from the video that the expected value of a binomial distribution can be calculated by <span class="math inline">\(n \times p\)</span>.</p>
 <ul>
 <li><p>Calculate the expected number of sales out of the 3 he works on that Amir will win each week if he maintains his 30% win rate.</p></li>
@@ -618,9 +618,52 @@ won_35pct</code></pre>
 <pre><code>## [1] 1.05</code></pre>
 </div>
 </div>
+<div id="the-normal-distribution" class="section level2" number="3.5">
+<h2 number="3.5"><span class="header-section-number">3.5</span> The Normal distribution</h2>
+<div id="characteristics" class="section level3" number="3.5.1">
+<h3 number="3.5.1"><span class="header-section-number">3.5.1</span> Characteristics</h3>
+<ul>
+<li>Bell curve</li>
+<li>It is symmetrical</li>
+<li>Area beneath the curve is one</li>
+<li>P ≥ 0</li>
+</ul>
 </div>
-<div id="the-normal-distribution" class="section level1" number="5">
-<h1 number="5"><span class="header-section-number">5</span> The Normal distribution</h1>
+<div id="standard-normal-distribution" class="section level3" number="3.5.2">
+<h3 number="3.5.2"><span class="header-section-number">3.5.2</span> Standard Normal distribution</h3>
+<ul>
+<li>Mean = 0</li>
+<li>SD = 1</li>
+<li>99.7% of the area falls within 3 standard deviations</li>
+</ul>
+</div>
+<div id="examples" class="section level3" number="3.5.3">
+<h3 number="3.5.3"><span class="header-section-number">3.5.3</span> Examples</h3>
+<ul>
+<li><p>Women’s height</p></li>
+<li><p>P(height &lt; 154 cm)</p></li>
+</ul>
+<pre class="r"><code>pnorm(154, mean = 161, sd = 7)</code></pre>
+<pre><code>## [1] 0.1586553</code></pre>
+<ul>
+<li>P(height &gt; 154 cm)</li>
+</ul>
+<pre class="r"><code>pnorm(154, mean = 161, sd = 7, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.8413447</code></pre>
+<ul>
+<li>What height are 90% of women shorter than?</li>
+</ul>
+<pre class="r"><code>qnorm(0.9, mean = 161, sd = 7)</code></pre>
+<pre><code>## [1] 169.9709</code></pre>
+<p>90% of women are shorter than 170 cm.</p>
+</div>
+<div id="generating-random-numbers" class="section level3" number="3.5.4">
+<h3 number="3.5.4"><span class="header-section-number">3.5.4</span> Generating random numbers</h3>
+<pre class="r"><code>rnorm(10, mean = 161, sd = 7)</code></pre>
+<pre><code>##  [1] 156.1871 154.8949 160.2877 159.2235 148.0238 160.4544 167.7800 162.2945
+##  [9] 151.3404 150.9514</code></pre>
+</div>
+</div>
 </div>
 
 

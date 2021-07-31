@@ -210,7 +210,7 @@ prob_between_10_and_20 <- punif(20, min, max) - punif(10, min, max)
 prob_between_10_and_20
 ```
 
-# The binomial distribution
+## The binomial distribution
 
 ```{r}
 simulation_nb <- seq(1, 1000)
@@ -373,5 +373,55 @@ won_35pct <- 3 * 0.35
 won_35pct
 ```
 
-# The Normal distribution
+## The Normal distribution
 
+### Characteristics
+
+- Bell curve
+- It is symmetrical
+- Area beneath the curve is one
+- P ≥ 0
+
+### Standard Normal distribution
+
+- Mean = 0
+- SD = 1
+- 99.7% of the area falls within 3 standard deviations
+
+### Examples 
+
+- Women's height
+
+
+- P(height < 154 cm)
+
+```{r}
+pnorm(154, mean = 161, sd = 7)
+```
+
+- P(height > 154 cm)
+
+```{r}
+pnorm(154, mean = 161, sd = 7, lower.tail = FALSE)
+```
+
+- What height are 90% of women shorter than?
+
+```{r}
+qnorm(0.9, mean = 161, sd = 7)
+```
+
+90% of women are shorter than 170 cm.
+
+### Generating random numbers
+
+```{r}
+rnorm(10, mean = 161, sd = 7)
+```
+
+### Exercises
+
+#### Distribution of Amir's sales
+Since each deal Amir worked on (both won and lost) was different, each was worth a different amount of money. These values are stored in the amount column of amir_deals As part of Amir's performance review, you want to be able to estimate the probability of him selling different amounts, but before you can do this, you'll need to determine what kind of distribution the amount variable follows.
+
+Both dplyr and ggplot2 are loaded and amir_deals is available.
