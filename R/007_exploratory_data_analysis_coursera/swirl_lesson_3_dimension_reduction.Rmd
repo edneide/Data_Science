@@ -1,0 +1,70 @@
+---
+title: "Dimension Reduction"
+author: "by Edneide Ramalho"
+date: "02/08/2021"
+output: html_document
+---
+
+In this lesson we'll discuss principal component analysis (PCA) and singular
+ value decomposition (SVD), two important and related techniques of dimension
+ reduction. This last entails processes which finding subsets of variables in
+ datasets that contain their essences. PCA and SVD are used in both the
+ exploratory phase and the more formal modelling stage of analysis. We'll focus
+ on the exploratory phase and briefly touch on some of the underlying theory.
+
+```{r}
+library(readr)
+dataMatrix <- read_csv("dataMatrix.csv")
+head(dataMatrix)
+```
+
+```{r}
+dataMatrix <- dataMatrix[, -1]
+tempMatrix <- as.matrix(dataMatrix)
+heatmap(tempMatrix)
+```
+
+We can see that even with the clustering that heatmap provides, permuting the
+ rows (observations) and columns (variables) independently, the data still looks
+ random.
+
+Let's add a pattern to the data. We've put some R code in the file addPatt.R for
+ you. Run the command myedit with the single argument "addPatt.R" (make sure to
+ use the quotation marks) to see the code. You might have to click your cursor in
+ the console after you do this to keep from accidentally changing the file.
+
+So in rows affected by the coin flip, the 5 left columns will still have a mean
+\| of 0 but the right 5 columns will have a mean closer to 3.
+
+```{r}
+addPatt <- function(){
+  set.seed(678910)
+for(i in 1:40){
+  # flip a coin
+  coinFlip <- rbinom(1,size=1,prob=0.5)
+  # if coin is heads add a common pattern to that row
+  if(coinFlip){
+    dataMatrix[i,] <- dataMatrix[i,] + rep(c(0,3),each=5)
+  }
+}
+  return(dataMatrix)
+}
+```
+
+```{r}
+new_dataMatrix <- addPatt()
+```
+
+```{r}
+heatmap(as.matrix(new_dataMatrix))
+```
+
+Here's the image of the altered dataMatrix after the pattern has been added. The
+\| pattern is clearly visible in the columns of the matrix. The right half is
+\| yellower or hotter, indicating higher values in the matrix.
+
+Again we see the pattern in the columns of the matrix. As shown in the
+ dendrogram at the top of the display, these split into 2 clusters, the lower
+ numbered columns (1 through 5) and the higher numbered ones (6 through 10).
+ Recall from the code in addPatt.R that for rows selected by the coinflip the
+ last 5 columns had 3 added to them. The rows still look random.
