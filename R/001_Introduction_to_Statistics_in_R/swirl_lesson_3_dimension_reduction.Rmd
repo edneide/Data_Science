@@ -23,3 +23,7 @@ dataMatrix <- dataMatrix[, -1]
 tempMatrix <- as.matrix(dataMatrix)
 heatmap(tempMatrix)
 ```
+
+We can see that even with the clustering that heatmap provides, permuting the
+ rows (observations) and columns (variables) independently, the data still looks
+ random.
