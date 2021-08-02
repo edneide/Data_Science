@@ -11,3 +11,15 @@ In this lesson we'll discuss principal component analysis (PCA) and singular
  datasets that contain their essences. PCA and SVD are used in both the
  exploratory phase and the more formal modelling stage of analysis. We'll focus
  on the exploratory phase and briefly touch on some of the underlying theory.
+
+```{r}
+library(readr)
+dataMatrix <- read_csv("dataMatrix.csv")
+head(dataMatrix)
+```
+
+```{r}
+dataMatrix <- dataMatrix[, -1]
+tempMatrix <- as.matrix(dataMatrix)
+heatmap(tempMatrix)
+```
