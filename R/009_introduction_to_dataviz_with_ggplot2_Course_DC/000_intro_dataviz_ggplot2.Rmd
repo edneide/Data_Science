@@ -1,0 +1,170 @@
+---
+title: "Introduction do Data Visualization with ggplot2"
+author: "by Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: flatly
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+# Drawing your first plot
+
+To get a first feel for `ggplot2`, let's try to run some basic `ggplot2` commands. The `mtcars` dataset contains information on 32 cars from a 1973 issue of Motor Trend magazine. This dataset is small, intuitive, and contains a variety of continuous and categorical variables.
+
+-   Load the `ggplot2` package using [**`library()`**](http://www.rdocumentation.org/packages/base/functions/library).
+
+-   Use [**`str()`**](http://www.rdocumentation.org/packages/utils/functions/str) to explore the structure of the `mtcars` dataset.
+
+-   Hit *Submit Answer*. This will execute the example code on the right. See if you can understand what `ggplot` does with the data.
+
+```{r}
+# Load the ggplot2 package
+library(ggplot2)
+
+# Explore the mtcars data frame with str()
+str(mtcars)
+
+# Execute the following command
+ggplot(mtcars, aes(cyl, mpg)) +
+  geom_point()
+```
+
+## Data columns types affect plot types
+
+The plot from the previous exercise wasn't really satisfying. Although `cyl` (the number of cylinders) is categorical, you probably noticed that it is classified as numeric in `mtcars`. This is really misleading because the representation in the plot doesn't match the actual data type. You'll have to explicitly tell `ggplot2` that `cyl` is a categorical variable.
+
+-   Change the [**`ggplot()`**](http://www.rdocumentation.org/packages/ggplot2/functions/ggplot) command by wrapping [**`factor()`**](http://www.rdocumentation.org/packages/base/functions/factor) around `cyl`.
+
+-   Hit *Submit Answer* and see if the resulting plot is better this time.
+
+```{r}
+# Load the ggplot2 package
+library(ggplot2)
+
+# Change the command below so that cyl is treated as factor
+ggplot(mtcars, aes(factor(cyl), mpg)) +
+  geom_point()
+```
+
+# Mapping data columns to aesthetics
+
+Let's dive a little deeper into the three main topics in this course: The data, aesthetics, and geom layers. We'll get to making pretty plots in the last chapter with the themes layer.
+
+We'll continue working on the 32 cars in the `mtcars` data frame.
+
+Consider how the examples and concepts we discuss throughout these courses apply to your own data-sets!
+
+-   Add a color aesthetic mapped to the displacement of the car engine: inside [**`aes()`**](http://www.rdocumentation.org/packages/ggplot2/functions/aes), add a `color` argument equal to `disp`.
+
+```{r}
+# Edit to add a color aesthetic mapped to disp
+ggplot(mtcars, aes(wt, mpg, color = disp))+
+  geom_point()
+```
+
+-   This time, map `disp` to the `size` aesthetic.
+
+```{r}
+# Change the color aesthetic to a size aesthetic
+ggplot(mtcars, aes(wt, mpg, size = disp)) +
+  geom_point()
+```
+
+## Understanding variables
+
+In the previous exercise you saw that `disp` can be mapped onto a color gradient or onto a continuous size scale.
+
+Another argument of [**`aes()`**](http://www.rdocumentation.org/packages/ggplot2/functions/aes) is the `shape` of the points. There are a finite number of shapes which [**`ggplot()`**](http://www.rdocumentation.org/packages/ggplot2/functions/ggplot) can automatically assign to the points. However, if you try this command in the console to the right:
+
+    ggplot(mtcars, aes(wt, mpg, shape = disp)) +
+      geom_point()
+
+It gives an error. What does this mean?
+
+-   **Erro**: A continuous variable can not be mapped to shape
+
+# ggplot2 layers
+
+```{r}
+g <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) +
+  geom_jitter(alpha = 0.5)
+g
+```
+
+```{r}
+g +
+  theme_classic()
+```
+
+## Adding geometries
+
+The `diamonds` dataset contains details of 1,000 diamonds. Among the variables included are `carat` (a measurement of the diamond's size) and `price`.
+
+You'll use two common geom layer functions:
+
+-   [**`geom_point()`**](http://www.rdocumentation.org/packages/ggplot2/functions/geom_point) adds points (as in a scatter plot).
+
+-   [**`geom_smooth()`**](http://www.rdocumentation.org/packages/ggplot2/functions/geom_smooth) adds a smooth trend curve.
+
+As you saw previously, these are added using the `+` operator.
+
+    ggplot(data, aes(x, y)) +
+      geom_*()
+
+Where `*` is the specific geometry needed.
+
+-   Explore the `diamonds` data frame with the [**`str()`**](http://www.rdocumentation.org/packages/utils/functions/str) function.
+
+```{r}
+str(diamonds)
+```
+
+-   Edit the plot code to add a point geom. Use the `+` operator to add [**`geom_point()`**](http://www.rdocumentation.org/packages/ggplot2/functions/geom_point) to the [**`ggplot()`**](http://www.rdocumentation.org/packages/ggplot2/functions/ggplot) command.
+
+```{r}
+# Add geom_point() with +
+ggplot(diamonds, aes(carat, price)) +
+  geom_point()
+```
+
+-   Add a smooth geom to the plot. Use the `+` operator to add [**`geom_smooth()`**](http://www.rdocumentation.org/packages/ggplot2/functions/geom_smooth).
+
+```{r}
+# Add geom_point() with +
+ggplot(diamonds, aes(carat, price)) +
+  geom_point() + 
+  geom_smooth()
+```
+
+## Changing one geom or every geom
+
+If you have multiple geoms, then mapping an aesthetic to data variable inside the call to `ggplot()` will change *all* the geoms. It is also possible to make changes to *individual* geoms by passing arguments to the `geom_*()` functions.
+
+`geom_point()` has an `alpha` argument that controls the opacity of the points. A value of `1` (the default) means that the points are totally opaque; a value of `0` means the points are totally transparent (and therefore invisible). Values in between specify transparency.
+
+The plot you drew last time is provided in the script.
+
+-   Edit the plot code to map the `color` aesthetic to the `clarity` data variable.
+
+```{r}
+# Map the color aesthetic to clarity
+ggplot(diamonds, aes(carat, price, color = clarity)) +
+  geom_point() +
+  geom_smooth()
+```
+
+```{r}
+# Make the points 40% opaque
+ggplot(diamonds, aes(carat, price, color = clarity)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth()
+```
+
+## Saving plots as variables
