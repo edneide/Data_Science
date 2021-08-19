@@ -168,3 +168,55 @@ ggplot(diamonds, aes(carat, price, color = clarity)) +
 ```
 
 ## Saving plots as variables
+
+Plots can be saved as variables, which can be added two later on using the `+` operator. This is really useful if you want to make multiple related plots from a common base.
+
+-   Using the `diamonds` dataset, plot the `price` (y-axis) versus the `carat` (x-axis), assigning to `plt_price_vs_carat`.
+
+-   Using `geom_point()`, add a point layer to `plt_price_vs_carat`.
+
+```{r}
+# Draw a ggplot
+plt_price_vs_carat <- ggplot(
+  # Use the diamonds dataset
+  diamonds,
+  # For the aesthetics, map x to carat and y to price
+  aes(x = carat, y = price)
+)
+
+# Add a point layer to plt_price_vs_carat
+plt_price_vs_carat + 
+  geom_point()
+```
+
+-   Add an `alpha` argument to the point layer to make the points 20% opaque, assigning to `plt_price_vs_carat_transparent`.
+
+-   Type the plot's variable name (`plt_price_vs_carat_transparent`) to display it.
+
+```{r}
+# From previous step
+plt_price_vs_carat <- ggplot(diamonds, aes(carat, price))
+
+# Edit this to make points 20% opaque: plt_price_vs_carat_transparent
+plt_price_vs_carat_transparent <- plt_price_vs_carat + geom_point(alpha = 0.2)
+
+# See the plot
+plt_price_vs_carat_transparent
+```
+
+-   Inside `geom_point()`, call `aes()` and map `color` to `clarity`, assigning to `plt_price_vs_carat_by_clarity`.
+
+-   Type the plot's variable name (`plt_price_vs_carat_by_clarity`) to display it.
+
+```{r}
+# From previous step
+plt_price_vs_carat <- ggplot(diamonds, aes(carat, price))
+
+# Edit this to map color to clarity,
+# Assign the updated plot to a new object
+___ <- plt_price_vs_carat + 
+  geom_point(aes(color = clarity))
+
+# See the plot
+plt_price_vs_carat_by_clarity
+```
