@@ -23,3 +23,17 @@ names(ssd[, 562:563])
 # | "been randomly partitioned into two sets, where 70% of the volunteers was selected for generating the
 # | training data and 30% the test data." Run the R command table with ssd$subject as its argument to see if
 # | the data in ssd contains training or test data.
+
+table(ssd$subject)
+2
+
+3
+
+sum(table(ssd$subject))
+
+table(ssd$activity)
+
+4
+
+sub1 <- subset(ssd, subject == 1)
+sub1
