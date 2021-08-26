@@ -21,35 +21,35 @@ gss_cat %>%
 
 gss_cat %>%
   create_report(
-    output_file  = "gss_survey_data_profile_report",
-    output_dir   = "025_eda_dataexplorer/",
+    output_file  = "011_gss_survey_data_profile_report",
+    output_dir   = getwd(),
     y            = "rincome",
     report_title = "EDA Report - GSS Demographic Survey"
   )
 
-# 2.0 Data Introduction ----
+# 2.0 Introdução aos dados ----
 
 gss_cat %>% introduce()
 
 gss_cat %>% plot_intro()
 
-# 3.0 Missing Values ----
+# 3.0 Valores faltantes (NAs) ----
 
 gss_cat %>% plot_missing()
 
 gss_cat %>% profile_missing()
 
-# 4.0 Continuous Features ----
+# 4.0 Variáveis Contínuas ----
 
 gss_cat %>% plot_density()
 
 gss_cat %>% plot_histogram()
 
-# 5.0 Categorical Features ----
+# 5.0 Variáveis Categóricas ----
 
 gss_cat %>% plot_bar()
 
-# 6.0 Relationships ----
+# 6.0 Relações entre variáveis  ----
 
 gss_cat %>% plot_correlation(maxcat = 15)
 
