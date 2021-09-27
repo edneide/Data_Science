@@ -55,7 +55,7 @@ lm(price_twd_msq ~ dist_to_mrt_m, data = taiwan_real_estate)
 
 lm(price_twd_msq ~ n_convenience, data =  taiwan_real_estate)
 
-# Intercept: onaverage, a house with zero convenience store nearby had a price
+# Intercept: on average, a house with zero convenience store nearby had a price
 # of 8.2242 TWD per square meter
 
 # Slope: If you increase the number of nearby convenience stores by one, 

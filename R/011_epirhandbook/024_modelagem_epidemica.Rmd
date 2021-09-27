@@ -1,0 +1,53 @@
+---
+title: "Modelagem Epidêmica"
+author: "Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: cerulean
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Preparação
+
+Vamos usar dois pacotes para estimar $R_t$, `EpiNow` e `EpiEstim` e também o pacote `projections` para previsão de incidência.
+
+-   Carregando os pacotes:
+
+```{r}
+library(pacman)
+pacman::p_load(
+   rio,          # File import
+   here,         # File locator
+   tidyverse,    # Data management + ggplot2 graphics
+   epicontacts,  # Analysing transmission networks
+   EpiNow2,      # Rt estimation
+   EpiEstim,     # Rt estimation
+   projections,  # Incidence projections
+   incidence2,   # Handling incidence data
+   epitrix,      # Useful epi functions
+   distcrete     # Discrete delay distributions
+)
+```
+
+-   Importando a base de dados:
+
+```{r}
+library(readr)
+linelist_cleaned <- read_csv("linelist_cleaned.csv")
+glimpse(linelist_cleaned)
+```
+
+# Estimando $R_t$ 
+
+$R_t$ é o *número reprodutivo efetivo*. É mais utilizado que o $R_0$ no caso em que a epidemia ou pandemia está ocorrendo e várias medidas estão sendo implementadas. É definido como o número esperado de infecções secundárias por caso infectado no tempo $t$.

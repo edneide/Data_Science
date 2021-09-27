@@ -1,0 +1,269 @@
+---
+title: "Week 4"
+author: "Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: cerulean
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data
+
+-   Train data set
+
+```{r}
+library(readr)
+X_train <- read_table2("Week 4/UCI HAR Dataset/train/X_train.txt", 
+    col_names = FALSE)
+dim(X_train)
+```
+
+-   Training labels:
+
+1 WALKING
+
+2 WALKING_UPSTAIRS
+
+3 WALKING_DOWNSTAIRS
+
+4 SITTING
+
+5 STANDING
+
+6 LAYING
+
+```{r}
+library(readr)
+y_train <- read_csv("Week 4/UCI HAR Dataset/train/y_train.txt", 
+    col_names = FALSE)
+```
+
+-   Mudando o nome da variável:
+
+```{r}
+names(y_train) <- "activity"
+```
+
+```{r}
+table(y_train$activity)
+```
+
+-   Adding the activity name to `y_train`:
+
+```{r}
+library(readr)
+activity_labels <- read_table2("Week 4/UCI HAR Dataset/activity_labels.txt", 
+    col_names = FALSE)
+names(activity_labels)
+```
+
+-   Join `activity_labels` to `y_train`:
+
+```{r}
+library(tidyverse)
+y_train <- y_train %>% 
+  left_join(activity_labels, by = c("activity" = "X1"))
+glimpse(y_train)
+names(y_train)[2]  <- "activity_name"
+```
+
+```{r}
+glimpse(y_train)
+```
+
+-   Importing features:
+
+    ```{r}
+    library(readr)
+    features <- read_table2("Week 4/UCI HAR Dataset/features.txt", 
+        col_names = FALSE)
+    names(features)[2] <- "features"
+    ```
+
+-   Replacing features names to the `X_train` dataset and adding the activity label.
+
+```{r}
+names(X_train) <- features$features
+```
+
+```{r}
+samsung_data <- cbind(y_train, X_train)
+```
+
+-   We'd like to separate the activities depending on the values we have for the features.
+
+```{r}
+table(samsung_data$activity_name)
+```
+
+-   Adding the subject name:
+
+```{r}
+subject_train <- read_csv("Week 4/UCI HAR Dataset/train/subject_train.txt", col_names = FALSE)
+names(subject_train) <- "subject"
+```
+
+```{r}
+samsung_data <- cbind(subject_train, samsung_data)
+names(samsung_data)[1:6]
+```
+
+# Plotting average accelaration for the first subject
+
+```{r, include=FALSE}
+par(mfrow = c(1, 2), mar = c(5, 4, 1, 1))
+samsung_data <- transform(samsung_data, activity_name = factor(activity_name))
+sub1 <- subset(samsung_data, subject == 1)
+plot(sub1[, 4], col = sub1$activity_name, ylab = names(sub1[4]))
+plot(sub1[, 5], col = sub1$activity_name, ylab = names(sub1[5]))
+legend("right", 
+       legend = unique(sub1$activity_name, 
+                       col = unique(sub1$activity_name), 
+                       pch = 1))
+```
+
+```{r}
+library(patchwork)
+library(ggplot2)
+library(magrittr)
+library(tidyverse)
+
+df1 <- samsung_data %>% 
+  filter(subject == 1)
+df1$index <- 1:dim(df1)[1]
+
+plot1 <- ggplot(df1, aes(x = index, y = tBodyAcc.mean...X, color = activity_name)) +
+  geom_point() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank())
+
+plot2 <- ggplot(df1, aes(x = index, y = tBodyAcc.mean...Y, color = activity_name)) +
+  geom_point() +
+  theme(legend.position = "none",
+        legend.title = element_blank())
+
+plot1 + plot2
+```
+
+# Clustering based just on average acceleration
+
+```{r}
+# library(devtools) # get from CRAN with install.packages("devtools")
+# install_github("ririzarr/rafalib")
+
+library(rafalib)
+distance_matrix <- dist(sub1[, 4:6])
+hclustering <- hclust(distance_matrix)
+par(mfrow = c(1, 1), mar = c(5, 4, 1, 1))
+myplclust(hclustering, lab.col = unclass(sub1$activity_name))
+```
+
+The colors for specific activities are still messed up. We cannot see a clear pattern on the dendrogram.
+
+# Plotting max acceleration for the first subject
+
+```{r}
+names(sub1)[1:20]
+```
+
+```{r}
+par(mfrow = c(1, 2))
+plot(sub1[, 13], pch = 19, 
+     col = sub1$activity_name, ylab = names(sub1)[13])
+plot(sub1[, 14], pch = 19, 
+     col = sub1$activity_name, ylab = names(sub1)[14])
+```
+
+The maximum accelaration seems to separate more clearly the moving and not moving activities.
+
+Now, let's cluster based on the maximum accelaration
+
+```{r}
+distance_matrix2 <- dist(sub1[, 13:15])
+hclustering2 <- hclust(distance_matrix2)
+par(mfrow = c(1, 1))
+myplclust(hclustering2,
+          lab.col = unclass(sub1$activity_name))
+```
+
+Now we can see on the left-hand side walking activities and in the right-hand side we can see the not-moving activities.
+
+Maximum accelaration seem to cluster well moving from not-moving activities. But inside of these two big clusters, it's difficult to see the division of the activities inside them.
+
+# Singular Value Decomposition
+
+```{r}
+svd1 = svd(scale(sub1[, -c(1, 2, 3)]))
+par(mfrow = c(1, 2))
+plot(svd1$u[, 1], col = sub1$activity_name, pch = 19)
+plot(svd1$u[, 2], col = sub1$activity_name, pch = 19)
+```
+
+The first singular vector seem to separate quite well the moving from the non-moving activities. The second singular value seems to separate well the magenta color from the others.
+
+# New clustering with maximum contributer
+
+```{r}
+max_contrib <- which.max(svd1$v[, 2])
+distance_matrix3 <- dist(sub1[, c(13:15, max_contrib)])
+hclustering3 <- hclust(distance_matrix3)
+par(mfrow = c(1, 1))
+myplclust(hclustering3, lab.col = unclass(sub1$activity_name))
+```
+
+-   The variable with the maximum contribution is:
+
+```{r}
+names(samsung_data)[max_contrib]
+```
+
+# K-means clustering (nstart = 1, first try)
+
+```{r}
+k_clust <- kmeans(sub1[, -c(1, 2, 3)], center = 6)
+table(k_clust$cluster, sub1$activity_name)
+```
+
+# K-means clustering (nstart = 1, first try)
+
+```{r}
+k_clust <- kmeans(sub1[, -c(1, 2, 3)], center = 6, nstart = 100)
+table(k_clust$cluster, sub1$activity_name)
+```
+
+-   Cluster 1: mix of laying, sitting and standing.
+
+-   Cluster 2: walking
+
+-   Cluster 3: sitting and standing
+
+-   Cluster 4: walking down
+
+-   Cluster 5: laying and walking up
+
+-   Cluster 6: laying
+
+**Why does the K-means algorithm produce different clustering solutions every time you run it?**
+
+K-Means chooses are random starting point by default.
+
+# Cluster 1: Variable Centers (Laying)
+
+```{r}
+plot(k_clust$centers[1, 1:10], pch = 19, 
+     ylab = "Cluster Center",
+     xlab = "")
+```
+
+We can see what features can contribute more to predict the activity.

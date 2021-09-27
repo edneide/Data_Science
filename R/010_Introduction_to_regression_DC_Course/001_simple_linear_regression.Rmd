@@ -1,0 +1,36 @@
+---
+title: "Simple Linear REgression"
+author: "Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: cerulean
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 
+
+```{r}
+fun <- function(X, Y){
+  a = 10
+  b = 30 
+ print(a, b + X)
+ b = a
+ a = b - Y
+ print(a, b)
+}
+```
+
+```{r}
+fun(0, 5)
+```
