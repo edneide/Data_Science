@@ -1,0 +1,322 @@
+---
+title: "Capítulo 4 - Polígonos"
+author: "Edneide Ramalho"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document:
+      highlight: textmate
+      logo: logo.png
+      theme: cerulean
+      number_sections: yes
+      toc: yes
+      toc_float:
+        collapsed: yes
+        smooth_scroll: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Pacotes
+
+```{r}
+library(tidyverse)
+library(GISTools)
+library(rgdal)
+library(readr)
+library(leaflet)
+```
+
+# Dados
+
+-   Como salvar um arquivo shape file no R:
+
+```{r}
+# data(torn)
+# writeOGR(obj=torn, dsn="tempdir", layer="torn", driver="ESRI Shapefile") # this is in geographical projection
+```
+
+-   Salvando o shape file de interesse:
+
+```{r}
+# writeOGR(obj=shp, dsn="tempdir", layer="nc_zips", driver="ESRI Shapefile") # this is in geographical projection
+```
+
+```{r}
+shp <- readOGR("tempdir/nc_zips.shp")
+```
+
+```{r}
+glimpse(shp@data)
+```
+
+```{r}
+nc_income <- read_csv("mean_income_by_zip_nc.csv")
+glimpse(nc_income)
+```
+
+-   Juntando `shp@data` com `nc_income`:
+
+```{r}
+nc_income$zipcode <- as.character(nc_income$zipcode)
+```
+
+```{r}
+shp_nc_income <- shp@data %>% 
+  left_join(nc_income, by = c("GEOID10" = "zipcode"))
+```
+
+```{r}
+glimpse(shp_nc_income)
+```
+
+Aqui, nós adicionamos os dados de interesse, que é o `income` à base de dados do shape file.
+
+-   Plotando alguns polígonos:
+
+```{r}
+shp@polygons[[1]] %>% 
+  leaflet::leaflet() %>% 
+  addPolygons()
+```
+
+-   Adicionando contexto ao polígono, colocando-o encima de um mapa: `add_Tiles`:
+
+```{r}
+shp@polygons[[1]] %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addPolygons()
+```
+
+# Exercícios
+
+## Introduction to Spatial Data
+
+We have been mapping points, but there are several spatial features that can be mapped, including polygons. In R, polygons are often stored in a SpatialPolygonsDataFrame that holds the polygon, coordinate information, and a data frame with one row per polygon.
+
+A SpatialPolygonsDataFrame called shp that contains the zip code boundaries for North Carolina has been loaded for you. shp has five slots that store various types of information:
+
+1.  data: data associated with each polygon
+2.  polygons: coordinates to plot polygons
+3.  plotOrder: order in which polygons are plotted
+4.  bbox: bounding box for geographic data (i.e., a rectangle)
+5.  proj4string: coordinate reference system Let's take a closer look inside the shp object.
+
+-   Print the `summary` of the `shp` object:
+
+```{r}
+summary(shp)
+```
+
+-   Print the class of `shp`
+
+```{r}
+class(shp)
+```
+
+-   Print the slot names of `shp`.
+
+```{r}
+slotNames(shp)
+```
+
+## **Exploring Spatial Data**
+
+The data slot in `shp` holds a data frame like we are used to working with. However, since it is stored inside a SpatialPolygonsDataFrame, we access the data frame a little differently using the `@` operator.
+
+    glimpse(shp@data) 
+
+    Observations: 808
+    Variables: 2
+    $ GEOID10 <fct> 27925, 28754, 28092...
+    $ ALAND10 <fct> 624688620, 223734670, 317180853 ...
+
+Our data frame has 808 observations of two variables:
+
+1.  GEOID10: the zip code of each polygon
+
+2.  ALAND10: the area (square meters) of each polygon.
+
+-   Use the `glimpse()` function to look at the `data` slot of `shp`.
+
+```{r}
+glimpse(shp@data)
+```
+
+-   Print the class of the data slot of `shp`.
+
+```{r}
+class(shp@data)
+```
+
+-   Print the `GEOID10` variable.
+
+```{r}
+shp@data$GEOID10 %>% 
+  head()
+```
+
+-   Print the number of missing values of each variable in `shp_nc_income`:
+
+```{r}
+shp_nc_income %>% 
+  summarize_all(funs(sum(is.na(.))))
+```
+
+```{r}
+shp_nc_income %>% 
+  summarize_all(list(~ sum(is.na(.))))
+```
+
+# Mapping Polygons
+
+```{r}
+shp %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addPolygons()
+```
+
+## Argumentos de `addPolygons()`:
+
+-   **weight**: a grossura das bordas
+
+-   **color**: a cor dos polígonos
+
+-   **label**: a informação que aparece quando passamos o mouse em cima
+
+-   **highlight**: opção para destacar o polígono quando passamos o mouse
+
+```{r}
+shp@data <- shp@data %>% 
+  left_join(nc_income, by = c("GEOID10" = "zipcode"))
+```
+
+```{r}
+library(scales) # para usar função dolar
+```
+
+```{r}
+shp  %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(weight = 1,
+              color = "grey",
+              label = ~ paste0("Total income: ", dollar(income)),
+              highlight = highlightOptions(weight = 3, color = "red",
+                                           bringToFront = TRUE)
+              )
+```
+
+## Coloring Numeric Data
+
+-   `colorNumeric`:
+
+```{r, eval=FALSE}
+nc_pal <- colorNumeric(palette = "Blues",
+                       domain = high_inc@data$mean_income)
+```
+
+-   `colorBin`:
+
+```{r, eval=FALSE}
+nc_pal <- colorBin(palette = "YlGn", bins = 5,
+                       domain = high_inc@data$mean_income)
+```
+
+-   `colorQuantile`:
+
+```{r, eval=FALSE}
+nc_pal <- colorQuantile(palette = "YlGn", n = 4,
+                       domain = high_inc@data$mean_income)
+```
+
+# Exercícios
+
+# **addPolygons() Function**
+
+Let's look at those zip codes with missing data to hypothesize why they do not have income data.
+
+We are mapping ZCTAs (not actual zip codes) so not every part of NC will have a boundary. Our boundaries may overlap because the file was simplified to reduce size. These are trade offs to consider when mapping polygons.
+
+Enough nuance, let's make a map. You can pipe the `shp` data directly into our calls to `leaflet()`, `addTiles()`, and `addPolygons()` without supplying any additional arguments to map North Carolina's zip codes. To get you started, the `shp` SpatialPolygonsDataFrame including the IRS income variables has been loaded for you.
+
+-   Create a new SpatialPolygonsDataFrame called `shp_na` that contains information on zip codes with missing income data.
+
+```{r}
+shp_na <- shp[is.na(shp$mean_income),]
+```
+
+-   Map the polygons in `shp_na` using `addPolygons()`.
+
+```{r}
+shp_na %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addPolygons()
+```
+
+# **NC High Income Zips**
+
+Did you have a hypothesis of why certain zip codes are missing income information? It looks to me like many of them are areas that likely have low populations (e.g., parks, colleges, etc.) and the IRS only reports income data on zip codes with more than 100 filers.
+
+Now let's focus in on a subset of zip codes with income data, namely the 25% of zip codes in NC with the highest mean incomes. Where do think these will fall within the states?
+
+Let's take a look and find out.
+
+-   Summarize the mean income variable to find the cut point for the top quartile of mean income.
+
+```{r}
+summary(shp$mean_income)
+```
+
+-   Create a subset called `high_inc` that includes only zip codes in the top quartile of mean income.
+
+```{r}
+high_inc <- shp[!is.na(shp$mean_income) & shp$mean_income > 55917, ]
+```
+
+-   Map the boundaries of the zip codes in the top quartile of mean income.
+
+```{r}
+high_inc %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addPolygons()
+```
+
+## **addPolygon() Options**
+
+So far we have used the default appearance for `addPolygons()`. There are several more ways to customize the polygons.
+
+The arguments to `addPolygons()` we will focus on are:
+
+-   **weight**: the thickness of the boundary lines in pixels
+
+-   **color**: the color of the polygons
+
+-   **label**: the information to appear on hover
+
+-   **highlightOptions**: options to highlight a polygon on hover
+
+```{=html}
+<!-- -->
+```
+    addPolygons(weight = 2,
+               color = "red",
+               label = ~paste0("Total Income: ", dollar(income)),
+               highlight = highlightOptions(weight = 10,
+                                           color = "blue",
+                                           bringToFront = TRUE))
+
+The `high_inc` SpatialPolygonsDataFrame you created in the previous exercise has been loaded for you.
+
+-   Use the arguments of `addPolygons()` to map the high income zip codes in NC with:
+
+    -   A boundary thickness of 1 pixel,
+
+    -   Polygons that are colored with the `nc_pal` palette and are highlighted on hover, and
+
+    -   Labels that display the words "Mean Income:" followed by the mean income of the zip code.
